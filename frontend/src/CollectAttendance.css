@@ -1,0 +1,8 @@
+.all-cards {
+     overflow-x: auto;  /* Enables horizontal scrolling */
+     scrollbar-width: none;  /* Hides scrollbar in Firefox */
+}
+
+.all-cards::-webkit-scrollbar {
+     display: none;  /* Hides scrollbar in Chrome, Edge, and Safari */
+}

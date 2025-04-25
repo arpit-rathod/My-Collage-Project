@@ -1,0 +1,48 @@
+.Navbar-container{
+     /* background-color: blueviolet; */
+     /* background-color: transparent; */
+     /* height: 60px; */
+     /* border-bottom:3px solid #b7032c; */
+     /* padding:0; */
+     /* margin: 0 11px; */
+}
+.menu-container{
+     /* width: 60px; */
+     /* background-color: aquamarine; */
+     /* background-color: transparent; */
+}
+
+.heading{
+     /* color: #b7032c; */
+     /* width: 600px;
+     font-size:45px;
+     display: flex;
+     justify-content: center;
+     font-weight: bold; */
+     /* background-color: aqua; */
+     /* background-color: transparent; */
+
+}
+.profileDiv{
+     /* height:60px ;
+     width: 200px;
+     display:flex;
+     flex-wrap: wrap;
+     justify-content: center;
+     align-items: center; */
+     /* overflow:hidden; */
+}
+.profileDiv img{
+     /* height:50px ;
+     width: 50px;
+     border-radius: 50%;
+     margin: 0px;
+     padding: 0 0px 0 10px ; */
+}
+/* .profile-title{
+     font:bold;
+     font-size: large;
+     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+     color: black;
+
+} */
