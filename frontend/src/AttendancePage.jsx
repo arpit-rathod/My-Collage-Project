@@ -69,7 +69,7 @@ export default function AttendancePage() {
                username: item2.username,
           }
           console.log(bodyData);
-          const resp = await axios.post('http://localhost:5005/submit-pin', bodyData, { headers: { authorization: `Bearer ${token}` } });
+          const resp = await axios.post(`${import.meta.env.VITE_API_URL}/submit-pin`, bodyData, { headers: { authorization: `Bearer ${token}` } });
           if (resp) {
                console.log(resp.data);
                setPin2(bodyData.pin)
@@ -88,7 +88,7 @@ export default function AttendancePage() {
                try {
                     const fetchAllDetails = async () => {
 
-                         const respo = await axios.get("http://localhost:5005/running-class-detail", { headers: { authorization: `Bearer ${token}` }, params: classTitle })
+                         const respo = await axios.get(`${import.meta.env.VITE_API_URL}/running-class-detail`, { headers: { authorization: `Bearer ${token}` }, params: classTitle })
                          console.log("api fetching");
                          if (respo.data) {
                               console.log(respo.data);
@@ -118,7 +118,7 @@ export default function AttendancePage() {
 
           console.log("submiting.");
           try {
-               const response = await axios.put('http://localhost:5005/submit-record', bodyData, { headers: { authorization: `Bearer ${token}` } })
+               const response = await axios.put(`${import.meta.env.VITE_API_URL}/submit-record`, bodyData, { headers: { authorization: `Bearer ${token}` } })
                if (response) {
                     console.log(response.data);
                     toast.success("Class Successfully saved", response.data.message)

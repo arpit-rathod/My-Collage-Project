@@ -3,7 +3,6 @@ import React, { useState, useEffect, lazy, Suspense, useContext } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import axios from 'axios';
 import Cookies from 'js-cookie';
-
 export default function AllCard(props) {
 
      const [lectures, setLectures] = useState(null);
@@ -18,8 +17,9 @@ export default function AllCard(props) {
           try {
                async function fetchData() {
                     console.log("get lectures detail for teacher api fetching ");
+                    console.log(import.meta.env.VITE_API_URL);
 
-                    const response = await axios.get('http://localhost:5005/get-lectures-of-teacher', { headers: { authorization: `Bearer ${token}`, }, params: { username: username } });
+                    const response = await axios.get(`${import.meta.env.VITE_API_URL}/get-lectures-of-teacher`, { headers: { authorization: `Bearer ${token}`, }, params: { username: username } });
 
                     console.log(response.data.lecturesData);
                     setLectures(response.data.lecturesData);

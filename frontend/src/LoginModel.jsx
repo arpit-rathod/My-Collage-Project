@@ -13,7 +13,7 @@ export default function LoginModal({ onClose }) {
         console.log("onlogin run");
         try {
             // { headers: { authorization: `Bearer ${token}`, } },
-            const response = await axios.post('http://localhost:5005/Login', loginInfo);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL} /Login`, loginInfo);
             if (response.data) {
                 console.log(response.data);
                 // Store user info and token in localStorage

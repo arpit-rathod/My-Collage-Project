@@ -24,7 +24,7 @@ export const ProfileDataProvider = ({ children }) => {
 
           const fetchData = async () => {
                try {
-                    const response = await axios.get('http://localhost:5005/getProfileAllDetails', {
+                    const response = await axios.get(`${import.meta.env.VITE_API_URL}/getProfileAllDetails`, {
                          params: {
                               username: localStorageData.username,
                               token: localStorageData.token,

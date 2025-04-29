@@ -27,7 +27,7 @@ export default function SubmitAttendance() {
           async function fetchLecturesInfo() {
                try {
                     if (!profileData) return;
-                    const response = await axios.get("http://localhost:5005/getLecturesStatus", {
+                    const response = await axios.get(`${import.meta.env.VITE_API_URL}/getLecturesStatus`, {
                          headers: {
                               authorization: `Bearer ${token}`
                          },
@@ -205,7 +205,7 @@ function SubmitAttendaceModal({ lecture, profileData, onClose, mainObject, setTo
           console.log("Submitting attendance for", lecture.subName, "with code", attendanceCode);
           console.log(bodyData);
 
-          const response = await axios.put('http://localhost:5005/submit-attendance', bodyData);
+          const response = await axios.put(`${import.meta.env.VITE_API_URL}/submit-attendance`, bodyData);
           if (response.data) {
                console.log(response.data);
                setTodayRecordOfStudent(response.data.dayRecord.attendance)
