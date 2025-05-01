@@ -5,7 +5,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 // const ProfileContext = lazy(require('./All-Provider/profileDataProvider'))
 import io from 'socket.io-client'
 import toast from 'react-hot-toast'
-const socket = io("http://localhost:5005")
+// const socket = io("http://localhostS:5005")
+const socket = io(import.meta.env.VITE_API_URL)
 
 export default function AttendancePage() {
      const [rollNumber, setRollNumber] = useState(""); // to store manually added student rollnumber;
