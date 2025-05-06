@@ -1,9 +1,7 @@
 import React from "react";
 import Navbar from "./Navbar.jsx";
-import CollegeName from "./CollegeName.jsx";
 import SlideShow from "./SlideShow.jsx";
 import HomeLinks from "./HomeLinks.jsx";
-import Particles from "./ParticlesBit.jsx";
 import Footer from "./Footer.jsx";
 export default function Home(props) {
   return (
