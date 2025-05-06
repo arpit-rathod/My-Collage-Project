@@ -1,5 +1,4 @@
 import React, { lazy, Suspense, useState } from "react";
-import MenuBar from "./MenuBar";
 import { NavLink, Outlet } from 'react-router-dom'
 import "./Navbar.css"
 import profileImage from './assets/image.png'
