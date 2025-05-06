@@ -95,11 +95,11 @@ const MaroonSlideshow = () => {
             }`}
           >
             {/* Using placeholder image from the API */}
-            <img 
+{/*             <img 
               src="/api/placeholder/1200/600" 
               alt={photo.title}
               className="object-cover w-full h-full"
-            />
+            /> */}
             <div 
               className="absolute inset-0" 
               style={{ backgroundColor: colors.overlay }}
