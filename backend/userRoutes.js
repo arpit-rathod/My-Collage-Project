@@ -2,7 +2,7 @@ import User from "./UserSchema.js";
 import Attendances from "./AttendanceSchema.js";
 // import BranchLectureInfo from ".//StudentsFiles/BranchLectureInfoSchema.js";
 import subRecordSchema from "./schema/submitRecord.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { io } from "./index.js";
 // import BranchLectureInfoSchema from ".//StudentsFiles/BranchLectureInfoSchema.js";
