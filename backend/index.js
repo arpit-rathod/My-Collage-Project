@@ -6,11 +6,22 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://my-collage-project-frontend.onrender.com",
+];
 app.use(
   cors({
-    // origin: "http://localhost:5173", // your frontend origin
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"], // include Authorization here
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 dotenv.config();
@@ -21,8 +32,9 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
