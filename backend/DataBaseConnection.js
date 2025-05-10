@@ -2,8 +2,10 @@ import mongoose from "mongoose";
 
 const DataBaseConnection = async () => {
   try {
-    const connect = await mongoose.connect("mongodb://0.0.0.0:27017/Truba-Site");
-    // const connect = await mongoose.connect(process.env.CONNECTION_STRING);
+    // const connect = await mongoose.connect(
+    //   "mongodb://0.0.0.0:27017/Truba-Site"
+    // );
+    const connect = await mongoose.connect(process.env.CONNECTION_STRING);
     console.log(
       "Database connected to",
       connect.connection.host,
