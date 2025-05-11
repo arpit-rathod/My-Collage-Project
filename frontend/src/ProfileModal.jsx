@@ -46,18 +46,18 @@ function ProfileModal({ localStorageData, profileImage }) {
         {profileData2.role == "student" &&
           <div className="links-div">
             <div className="flex flex-col justify-start font-semibold">
-              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.FRONTEND_URL}/result`}><span>Result</span></NavLink>
-              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.FRONTEND_URL}/record`}><span>Record</span></NavLink>
-              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.FRONTEND_URL}/submitAttendance`}><span>Submit Present</span></NavLink>
+              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.VITE_FRONTEND_URL}/result`}><span>Result</span></NavLink>
+              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.VITE_FRONTEND_URL}/record`}><span>Record</span></NavLink>
+              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.VITE_FRONTEND_URL}/submitAttendance`}><span>Submit Present</span></NavLink>
             </div>
           </div>
         }
         {profileData2.role == "teacher" &&
           <div className="links-div">
             <div className="flex flex-col justify-start font-semibold">
-              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.FRONTEND_URL}/record`}><span>My Lectures</span></NavLink>
-              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.FRONTEND_URL}/CollectAttendance`}><span>Take Attendance</span></NavLink>
-              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.FRONTEND_URL}/submitAttendance`}><span>Push Notice</span></NavLink>
+              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.VITE_FRONTEND_URL}/record`}><span>My Lectures</span></NavLink>
+              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.VITE_FRONTEND_URL}/CollectAttendance`}><span>Take Attendance</span></NavLink>
+              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.VITE_FRONTEND_URL}/submitAttendance`}><span>Push Notice</span></NavLink>
             </div>
           </div>
         }
