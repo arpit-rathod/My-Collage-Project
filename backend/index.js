@@ -30,7 +30,8 @@ const PORT = process.env.PORT || 5005;
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'none'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com"
+    // "default-src 'none'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com"
+    "default-src 'none'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:"
   );
   next();
 });
