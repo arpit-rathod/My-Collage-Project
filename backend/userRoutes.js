@@ -11,7 +11,7 @@ import mongoose from "mongoose";
 import cron from "node-cron";
 import BranchLectureInfoSchema from "./StudentsFiles/BranchLectureInfoSchema.js"; // path to your model
 const getProfileDetail = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   const { username } = req.query;
   // console.log(username);
 
@@ -26,8 +26,7 @@ const getProfileDetail = async (req, res) => {
   }
 };
 const getProfileAllDetails = async (req, res) => {
-  // res.setHeader("Access-Control-Allow-Origin","http://localhost:5173/getProfileAllDetails");
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   try {
     const { username } = req.query;
     // console.log(username);
@@ -42,7 +41,7 @@ const getProfileAllDetails = async (req, res) => {
   }
 };
 const UserLogin = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   try {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -89,7 +88,7 @@ const UserLogin = async (req, res) => {
   }
 };
 const UserSignUp = async (req, res) => {
-  // res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   try {
     // console.log("try");
     const bodyData = req.body;
@@ -128,7 +127,7 @@ const UserSignUp = async (req, res) => {
 // for student
 const getLecturesStatus = async (req, res) => {
   // res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   console.log("getLecturesStatus function run ");
   // res.header("Access-Control-Allow-Origin", "*");
   const token = req.headers.authorization;
@@ -168,7 +167,7 @@ const getLecturesStatus = async (req, res) => {
 // for teacher
 const getLecturesOfTeacher = async (req, res) => {
   // res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   try {
     console.log("getLecturesOfTeacher run ");
     const { username } = req.query;
@@ -206,7 +205,7 @@ const getLecturesOfTeacher = async (req, res) => {
 };
 // for teacher
 const submitPIN = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   try {
     const {
       department,
@@ -293,7 +292,7 @@ const submitPIN = async (req, res) => {
 };
 // for teacher
 const getRunningClassDetails = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   try {
     console.log("classId");
     const { classId } = req.query;
@@ -316,7 +315,7 @@ const getRunningClassDetails = async (req, res) => {
 };
 // for teacher
 const submitRecord = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   const { classId } = req.body;
   if (!classId) {
     return res
@@ -351,6 +350,7 @@ const submitRecord = async (req, res) => {
 };
 // for admin
 const postYearBranchInfo = async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   try {
     const { department, year, branch, subjectsData } = req.body;
     if (!department || !year || !branch || !subjectsData) {
@@ -379,7 +379,7 @@ const postYearBranchInfo = async (req, res) => {
 // mark as present
 // for students
 const submitAttendance = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   try {
     const {
       department,

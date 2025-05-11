@@ -6,6 +6,7 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 
+dotenv.config();
 const allowedOrigins = [
   "http://localhost:5173",
   "https://my-collage-project-frontend.onrender.com",
@@ -24,7 +25,6 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-dotenv.config();
 DBConnection();
 const PORT = process.env.PORT || 5005;
 app.use(express.json());
