@@ -186,6 +186,8 @@ function SubmitAttendaceModal({ lecture, profileData, onClose, mainObject, setTo
      const [attendanceCode, setAttendanceCode] = useState('');
      // const { lecture, profileData } = selectedLecture;
      const token = Cookies.get('token')
+     console.log("token from cookie for submit attendace api ", token);
+
      console.log(profileData);
      const handleSubmit = async (e) => {
           e.preventDefault();
