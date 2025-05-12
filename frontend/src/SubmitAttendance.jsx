@@ -206,7 +206,13 @@ function SubmitAttendaceModal({ lecture, profileData, onClose, mainObject, setTo
           console.log("Submitting attendance for", lecture.subName, "with code", attendanceCode);
           console.log(bodyData);
 
-          const response = await axios.put(`${import.meta.env.VITE_API_URL}/submit-attendance`, bodyData);
+          const response = await axios.put(`${import.meta.env.VITE_API_URL}/submit-attendance`, bodyData, {
+               withCredentials: true,
+               headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+               },
+          });
           if (response.data) {
                console.log(response.data);
                setTodayRecordOfStudent(response.data.dayRecord.attendance)
