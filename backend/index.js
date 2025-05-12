@@ -48,10 +48,6 @@ app.use(
   })
 );
 app.use(express.json());
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
-});
 
 const server = http.createServer(app);
 const io = new Server(server, {
