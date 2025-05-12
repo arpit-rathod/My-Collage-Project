@@ -209,7 +209,7 @@ function SubmitAttendaceModal({ lecture, profileData, onClose, mainObject, setTo
           const response = await axios.put(`${import.meta.env.VITE_API_URL}/submit-attendance`, bodyData, {
                withCredentials: true,
                headers: {
-                    Authorization: `Bearer ${token}`,
+                    authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                },
           });
