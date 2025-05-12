@@ -185,7 +185,7 @@ function LectureCard({ item, onClick, todayRecordOfStudent }) {
 function SubmitAttendaceModal({ lecture, profileData, onClose, mainObject, setTodayRecordOfStudent }) {
      const [attendanceCode, setAttendanceCode] = useState('');
      // const { lecture, profileData } = selectedLecture;
-
+     const token = Cookies.get('token')
      console.log(profileData);
      const handleSubmit = async (e) => {
           e.preventDefault();
