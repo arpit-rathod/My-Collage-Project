@@ -126,7 +126,7 @@ export default function AttendancePage() {
                }
           } catch (error) {
                console.log("error during submittin record", error);
-               toast.success("Error in saving class");
+               toast.error("Error in saving class");
           }
      }
      // if (profileDataLoading) {

@@ -317,6 +317,11 @@ const getRunningClassDetails = async (req, res) => {
 const submitRecord = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   const { classId } = req.body;
+  console.log(
+    classId,
+    "classId for submit its record from submitRecord function"
+  );
+
   if (!classId) {
     return res
       .status(400)

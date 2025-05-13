@@ -61,6 +61,15 @@ function ProfileModal({ localStorageData, profileImage }) {
             </div>
           </div>
         }
+        {profileData2.role == "admin" &&
+          <div className="links-div">
+            <div className="flex flex-col justify-start font-semibold">
+              <NavLink className={`${styleForProfileLinks}`} to={`${import.meta.env.VITE_FRONTEND_URL}/record`}><span>admin page 1</span></NavLink>
+              <NavLink className={`${styleForProfileLinks}`} to={`/CollectAttendance`}><span>admin page 1</span></NavLink>
+              <NavLink className={`${styleForProfileLinks}`} to={`/submitAttendance`}><span>admin page 1</span></NavLink>
+            </div>
+          </div>
+        }
       </div>
       {/* </div> */}
       <div className="logOut  flex justify-center align-text-bottom">
