@@ -55,10 +55,6 @@ export default function SubmitAttendance() {
           }
           fetchLecturesInfo();
      }, [profileData]);
-
-     // console.log(lecturesData);
-     // console.log(subjectsData);
-
      const handleOpenModal = (lecture) => {
           // console.log(profileData);
           setSelectedLecture(lecture);

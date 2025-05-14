@@ -27,7 +27,7 @@ export default function LoginModal({ onClose }) {
                     }));
                     Cookies.set("token", response.data.token)
                     const cookies_token = Cookies.get('token')
-                    console.log("this is data that is saved in coolies ", cookies_token);
+                    console.log("this is data that is saved in cookies ", cookies_token);
 
                     const storedProfileData = localStorage.getItem("UserInfo");
                     // Reload page after successful login

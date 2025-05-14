@@ -9,7 +9,7 @@ import helmet from "helmet";
 dotenv.config();
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://my-collage-project-frontend.onrender.com",
+  // "https://my-collage-project-frontend.onrender.com",
 ];
 app.use(
   cors({

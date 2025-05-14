@@ -3,8 +3,8 @@ import React, { useState, useEffect, lazy, Suspense, useContext } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import axios from 'axios';
 import Cookies from 'js-cookie';
-export default function AllCard(props) {
 
+export default function AllCard(props) {
      const [lectures, setLectures] = useState(null);
      const [lecturesLoading, setLecturesLoading] = useState(false);
      const { profileData, profileDataLoading } = useContext(ProfileContext);
@@ -23,6 +23,7 @@ export default function AllCard(props) {
 
                     console.log(response.data.lecturesData);
                     setLectures(response.data.lecturesData);
+                    localStorage.setItem("Teacher-all-Lectures", JSON.stringify(response.data.lecturesData))
                }
                fetchData();
           } catch (error) {
@@ -43,9 +44,9 @@ export default function AllCard(props) {
                     <div className="all-cards flex md:flex-wrap md:justify-center sm:overflow-x-auto w-full scrollbar-hide">
                          {lectures.map((item, index) => (
                               item.subjectsData.map((item2, index) => (
-                                   <NavLink to="attendance-page"
+                                   <NavLink to={`/attendance-page${item2.id}`}
                                         state={{ item, item2 }}
-                                        key={item2.id}  >
+                                        key={item2.id}>
                                         <LectureCard key={item2.id} item2={item2} item={item} ></LectureCard>
                                    </NavLink>
 

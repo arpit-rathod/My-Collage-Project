@@ -29,8 +29,6 @@ const getProfileAllDetails = async (req, res) => {
   res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   try {
     const { username } = req.query;
-    // console.log(username);
-    // console.log(username);
     const user = await User.findOne({ username: username }).select("-password");
     if (!user) {
       return res.status(404).json({ message: "user details not found" });
