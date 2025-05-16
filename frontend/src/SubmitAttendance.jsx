@@ -119,7 +119,7 @@ export default function SubmitAttendance() {
                          />
                     )
                }
-
+               <Outlet></Outlet>
           </ div>
 
      )
