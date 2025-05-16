@@ -9,3 +9,4 @@ export default function AllLecture(props) {
           </>
      )
 }
+3
