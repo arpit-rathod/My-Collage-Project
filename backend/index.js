@@ -1,25 +1,39 @@
-// index.js (your backend entry point)
 import express from "express";
-import DBConnection from "./DataBaseConnection.js";
-import appRouter from "./Routes.js"; // Renamed to avoid name conflict with express app
 import dotenv from "dotenv";
 import cors from "cors";
 import http from "http";
-import { Server } from "socket.io";
 import helmet from "helmet";
+import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 
+import DBConnection from "./DataBaseConnection.js";
+import appRoutes from "./Routes.js";
+
 dotenv.config();
 
-// Required for __dirname in ES Modules
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [
+      "http://localhost:5173",
+      "https://my-collage-project-frontend.onrender.com",
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+// __dirname workaround for ES Modules
+console.log(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express(); // 🛑 You were reusing `app` from Routes.js — bad idea!
-const PORT = process.env.PORT || 5005;
+// Database connection
+DBConnection();
 
-// ====== CORS CONFIG ======
+// CORS
 const allowedOrigins = [
   "http://localhost:5173",
   "https://my-collage-project-frontend.onrender.com",
@@ -40,7 +54,7 @@ app.use(
   })
 );
 
-// ====== SECURITY HEADERS ======
+// Helmet for security
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
@@ -49,50 +63,49 @@ app.use(
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       scriptSrc: ["'self'"],
       imgSrc: ["'self'"],
-      connectSrc: ["'self'"],
+      connectSrc: [
+        "'self'",
+        "https://my-collage-project-frontend.onrender.com",
+      ],
     },
   })
 );
 
+// Body parser
 app.use(express.json());
 
-// ====== DATABASE CONNECTION ======
-DBConnection();
+// const distPath = path.join(__dirname, "dist"); // Ensure 'dist' is the correct build folder name
 
-// ====== API ROUTES ======
-app.use("/api", appRouter); // Prefix all your routes like /api/submitAttendance
+// app.use(express.static(distPath));
 
-// ====== SERVE FRONTEND STATIC BUILD ======
-const distPath = path.join(__dirname, "dist"); // Make sure this exists
-app.use(express.static(distPath));
+// // For all GET requests not handled above, send index.html (important for React Router)
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(distPath, "index.html"));
+// });
 
-// For any route not handled (SPA support)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(distPath, "index.html"));
-});
+// Mount routes
+// app.use("/api", appRoutes);
+// All your routes should start from /api
 
-// ====== SOCKET.IO SERVER ======
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
+// No need to serve frontend from here
+// Do NOT include app.use(express.static(...)) or app.get("*")
 
+// Socket.IO
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
+
   socket.on("trubaId", (msg) => {
     console.log(`New msg from ${msg}`);
   });
 });
 
-// ====== START SERVER ======
+// Start server
+const PORT = process.env.PORT || 5005;
 server.listen(PORT, () => {
-  console.log(`✅ Server running on PORT ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
+// Export Socket instance if needed
 export { io };
 
 // import express from "express";
