@@ -40,12 +40,14 @@ const getProfileAllDetails = async (req, res) => {
 };
 const UserLogin = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+  console.log("login function run allowed this origin");
   try {
     const { username, password } = req.body;
     if (!username || !password) {
       console.log("all field are mandotory");
       return res.status(404).json("all field are mandotory");
     }
+
     const availableUser = await User.findOne({ username: username });
     if (!availableUser) {
       console.log("user NOT available for login ", availableUser);
