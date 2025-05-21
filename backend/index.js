@@ -24,12 +24,6 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-
-// __dirname workaround for ES Modules
-console.log(import.meta.url);
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // Database connection
 DBConnection();
 
