@@ -77,9 +77,7 @@ app.use(express.json());
 //   res.sendFile(path.join(distPath, "index.html"));
 // });
 
-// Mount routes
-// app.use("/api", appRoutes);
-// All your routes should start from /api
+app.use(appRoutes);
 
 // No need to serve frontend from here
 // Do NOT include app.use(express.static(...)) or app.get("*")
