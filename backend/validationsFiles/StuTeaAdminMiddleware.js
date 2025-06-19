@@ -39,7 +39,7 @@ export const authenticateUser = (req, res, next) => {
 
   try {
     console.log("trying to authenticate user ");
-    const decode = jwt.verify(token, "TrubaGroup");
+    const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     console.log("trying to authenticate user ");
     console.log(decode);
     console.log("authenticate user completed");

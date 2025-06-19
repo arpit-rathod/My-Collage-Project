@@ -69,6 +69,11 @@ const UserLogin = async (req, res) => {
         },
         process.env.ACCESS_TOKEN_SECRET
       );
+      res.cookie("auth_token", token, {
+        httpOnly: true, // Cannot access with JS
+        secure: false, // Set true for HTTPS
+        sameSite: "strict",
+      });
       console.log(token);
       return res.status(200).json({
         name: availableUser.name,

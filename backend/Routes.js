@@ -1,4 +1,11 @@
 import express from "express";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+const app = express();
+app.use(bodyParser.json());
+app.use(express.json());
+app.use(cookieParser());
+
 import {
   getProfileDetail,
   getProfileAllDetails,
@@ -18,11 +25,6 @@ import {
   studentValidation,
   authenticateUser,
 } from "./validationsFiles/StuTeaAdminMiddleware.js";
-import bodyParser from "body-parser";
-const app = express();
-
-app.use(bodyParser.json());
-// app.use(express.json())
 // app.get("/CollectAttendance/attendance-page", attedancePage);
 
 // for teachers

@@ -2,8 +2,9 @@ import axios from 'axios';
 import React, { useEffect, useState, useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { ProfileContext } from './All-Provider/profileDataProvider';
-// import { h1 } from 'motion/react-client';
+import Cookies from "js-cookie"
 
+// import { h1 } from 'motion/react-client';
 function ProfileModal({ localStorageData, profileImage }) {
   const { profileData, profileDataLoading } = useContext(ProfileContext);
   const [profileData2, setProfileData2] = useState(null);
@@ -16,7 +17,11 @@ function ProfileModal({ localStorageData, profileImage }) {
   function logOutUser() {
     console.log("logOutUser run");
     localStorage.removeItem('UserInfo');
-    window.location.reload();
+    console.log(Cookies.get("token"));
+    Cookies.remove("token")
+    console.log(Cookies.get("token"));
+
+    // window.location.reload();
   }
 
   if (profileDataLoading || !profileData2) return (<h1 className='text-2xl font-bold grid place-items-center'>Loading...</h1>)
