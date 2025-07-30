@@ -52,7 +52,7 @@ function App() {
 
         {/* student routes */}
         <Route path="/submitAttendance" element={<SubmitAttendance />}>
-          <Route index element={<AllLecture></AllLecture>} />
+          {/* <Route index element={<AllLecture></AllLecture>} /> */}
           <Route path="onelecture" element={<OneLecture></OneLecture>} />
         </Route>
         <Route path="/unauthorized" element={<div className="align-middle"><h1>This is page not for you</h1></div>

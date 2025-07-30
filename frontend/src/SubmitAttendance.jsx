@@ -27,8 +27,12 @@ export default function SubmitAttendance() {
           console.log(bodyData);
           async function fetchLecturesInfo() {
                try {
-                    if (!profileData) return;
+                    if (!profileData || !token) {
+                         console.log(`missing profile data ${bodyData}, or token ${token}`);
+                         return
+                    };
                     const response = await axios.get(`${import.meta.env.VITE_API_URL}/getLecturesStatus`, {
+                         withCredentials: true,
                          headers: {
                               authorization: `Bearer ${token}`
                          },

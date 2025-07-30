@@ -16,12 +16,11 @@ function ProfileModal({ localStorageData, profileImage }) {
 
   function logOutUser() {
     console.log("logOutUser run");
-    localStorage.removeItem('UserInfo');
-    console.log(Cookies.get("token"));
-    Cookies.remove("token")
-    console.log(Cookies.get("token"));
+    console.log(`Deleting user data ${localStorage.removeItem('UserInfo')} and ${Cookies.get("token")}`);
 
-    // window.location.reload();
+    localStorage.removeItem('UserInfo');
+    Cookies.remove("token")
+    window.location.reload();
   }
 
   if (profileDataLoading || !profileData2) return (<h1 className='text-2xl font-bold grid place-items-center'>Loading...</h1>)
