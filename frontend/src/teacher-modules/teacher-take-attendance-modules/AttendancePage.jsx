@@ -7,7 +7,6 @@ import { NavLink, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast'
 import { param } from 'motion/react-client';
 import FullPageSpinner from "/frontend/src/animation-components/spinner.jsx"
-import { set } from 'mongoose';
 // import io from 'socket.io-client'
 // const socket = io(import.meta.env.VITE_API_URL, {
 //      auth: { authToken: Cookies.get('auth_token') }

@@ -3,7 +3,6 @@ import React, { useEffect, useState, useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { set } from 'mongoose';
 
 
 function ProfileModal({ profileImage, navbarHeight }) {
