@@ -1,66 +1,43 @@
+// module for submitting attendance student side
 import axios from 'axios';
 import React, { useState, useContext, useEffect } from 'react'
-import { ProfileContext } from './All-Provider/profileDataProvider';
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { Outlet } from 'react-router-dom';
+import FullPageSpinner from '../../animation-components/spinner';
+import { time } from 'motion/react-client';
 
 export default function SubmitAttendance() {
-
-     const { profileData, profileDataIsLoading } = useContext(ProfileContext);
      const [showModal, setShowModal] = useState(false);
-     const [lecturesData, setLecturesData] = useState(null);
-     const [lecturesDataLoading, setLecturesDataIsLoading] = useState(false);
-     const [subjectsData, setSubjectsData] = useState(null);
      const [selectedLecture, setSelectedLecture] = useState(null);
-     const [todayRecordOfStudent, setTodayRecordOfStudent] = useState(null);
-     console.log(profileData);
+     const [lecturesData, setLecturesData] = useState(null);
+     const [subjectsData, setSubjectsData] = useState(null);
+     const [lecturesDataLoading, setLecturesDataIsLoading] = useState(false);
      useEffect(() => {
-          if (!profileData || profileDataIsLoading) return;
-          setLecturesDataIsLoading(true);
-          const bodyData = {
-               year: profileData.year,
-               branch: profileData.branch,
-               username: profileData.username
-          }
-          const token = Cookies.get('token')
-          console.log(bodyData);
-          async function fetchLecturesInfo() {
+          // setLecturesDataIsLoading(true);
+          async function fetchLectures() {
+               console.log("Fetching lectures... for student");
                try {
-                    if (!profileData || !token) {
-                         console.log(`missing profile data ${bodyData}, or token ${token}`);
-                         return
-                    };
-                    const response = await axios.get(`${import.meta.env.VITE_API_URL}/getLecturesStatus`, {
+                    const response = await axios.get(`${import.meta.env.VITE_API_URL}/student-lectures`, {
                          withCredentials: true,
-                         headers: {
-                              authorization: `Bearer ${token}`
-                         },
-                         params: bodyData,
                     });
                     if (response.data) {
                          console.log("lectures information fetched");
                          console.log(response.data);
-                         // console.log(response.data.lecturesData._id);
-                         setLecturesData(response.data?.lecturesData)
-                         setSubjectsData(response.data.lecturesData?.subjectsData)
-                         setTodayRecordOfStudent(response.data?.attendance)
-                         console.log(response.data?.attendance);
-
+                         setLecturesData(response.data?.lectureObject)
+                         setSubjectsData(response.data?.lectureObject?.subjectsData)
                     } else {
-                         console.log("error during fetching lecture information");
+                         console.log("No lecture information found");
                     }
                } catch (error) {
                     console.log(error);
                     return;
-               } finally {
-                    setLecturesDataIsLoading(false);
                }
           }
-          fetchLecturesInfo();
-     }, [profileData]);
+          fetchLectures();
+     }, []);
+
      const handleOpenModal = (lecture) => {
-          // console.log(profileData);
           setSelectedLecture(lecture);
           setShowModal(true);
      };
@@ -68,7 +45,7 @@ export default function SubmitAttendance() {
      const handleCloseModal = () => {
           setShowModal(false);
      };
-     if (!lecturesData || !subjectsData) return <h3 className='h-full max-h-screen grid place-items-center text-2xl font-bold'>Loading</h3>
+     if (!lecturesData || !subjectsData) return <FullPageSpinner message={"Loading lectures data..."} />;
      return (
           // px-4 sm:px-0 md:px-6 lg:px-10
           < div className='min-h-screen p-0 md:p-5 lg:p-10 flex justify-center bg-white font-mono' >
@@ -96,11 +73,10 @@ export default function SubmitAttendance() {
                                    </div>
                                    <div className='flex justify-center'>
                                         <div className='flex flex-wrap justify-center scrollbar-hide p-2 md:p-5 w-full'>
-                                             {subjectsData?.map((item) => (
+                                             {subjectsData?.map((item, index) => (
                                                   <LectureCard
-                                                       key={item.id}
+                                                       key={index}
                                                        item={item}
-                                                       todayRecordOfStudent={todayRecordOfStudent}
                                                        onClick={() => handleOpenModal(item)}
                                                   />
                                              ))}
@@ -114,12 +90,11 @@ export default function SubmitAttendance() {
                {/* Modal Component */}
                {
                     showModal && selectedLecture && (
-                         <SubmitAttendaceModal
+                         <ModalForSubmitAttendace
                               lecture={selectedLecture}
-                              profileData={profileData}
-                              mainObject={lecturesData}
+                              subjectsData={subjectsData}
+                              setSubjectsData={setSubjectsData}
                               onClose={handleCloseModal}
-                              setTodayRecordOfStudent={setTodayRecordOfStudent}
                          />
                     )
                }
@@ -129,23 +104,16 @@ export default function SubmitAttendance() {
      )
 }
 // item hold subjects info
-
-function LectureCard({ item, onClick, todayRecordOfStudent }) {
-     const status = item.status;
-     console.log(todayRecordOfStudent);
-     let isPresent = false;
-
-     if (todayRecordOfStudent) {
-          const result = todayRecordOfStudent[item.subCode]
-          isPresent = result;
-     }
-     console.log(isPresent);
-     // ?.find((obj) => obj.hasOwnProperty(item.subCode));
-
-     // ? result[subCode] : false;
-     // const isPresent = false;
-
-     const statusStyle = status === "done" ? `border-green-500` : status === "running" ? `border-yellow-500` : `border-red-500`
+function LectureCard({ item, onClick }) {
+     console.log(item);
+     const studentStatus = item.studentStatus;
+     const lectureStatus = item.status;
+     const styles = {
+          pending: "bg-yellow-100 text-yellow-700 border border-yellow-300",
+          running: "bg-blue-100 text-blue-700 border border-blue-300",
+          complete: "bg-green-100 text-green-700 border border-green-300",
+     };
+     const statusStyle = studentStatus === "Present" ? `border-green-500` : studentStatus === "Absent" ? `border-red-500` : `border-yellow-500`
      return (
           <div className={`singalCard md:min-w-52 min-h-40 w-full min-w-52 md:w-64 my-2 md:my-3 mx-1 md:mx-2 p-3 md:p-5 border-t-4 border-[1.5px] ${statusStyle} shadow-md shadow-gray-700 rounded-2xl flex flex-col hover:-translate-y-2 hover:scale-105 duration-200 transform-gpu will-change-transform`}>
                <div className="details flex flex-col cursor-pointer text-sm md:text-[15px] font-medium flex-grow">
@@ -157,24 +125,25 @@ function LectureCard({ item, onClick, todayRecordOfStudent }) {
                          <p className="text-xs md:text-[14px]">{item.teacher}</p>
                     </div>
                </div>
-               <div className='flex md:flex-nowrap justify-evenly'>
-                    <p className={`status text-center rounded-4xl border-[1.5px] ${statusStyle}`}>{item?.status}</p>
+               <div className='flex'>
+                    <p className={`status text-center rounded-4xl border-[1.5px] ${styles[lectureStatus]}`}>{lectureStatus}</p>
+                    <h3>
+                         {
+                              lectureStatus == "running" ? (studentStatus == "present" ? (
+                                   <div>✅ Present</div>) : (<button
+                                        type="button"
+                                        onClick={onClick}
+                                        className="text-[10px] sm:text-xs rounded-2xl hover:bg-amber-200 p-1 sm:p-2 m-1 sm:m-2 bg-cyan-300 cursor-pointer mt-auto"
+                                   >
+                                        Mark as Present
+                                   </button>)
+                              ) : null
+                         }
+                         {
+                              lectureStatus == "complete" ? (studentStatus == "present" ? (<div>✅ Present</div>) : (<div>❌ Absent</div>)) : null
+                         }
+                    </h3>
 
-                    {
-                         item?.status == "complete" ? (isPresent ? (<div>✅ Present</div>) : (<div>❌ Absent</div>)) : null
-                    }
-
-                    {
-                         item?.status == "running" ? (isPresent ? (
-                              <div>✅ Present</div>) : (<button
-                                   type="button"
-                                   onClick={onClick}
-                                   className="text-[10px] sm:text-xs rounded-2xl hover:bg-amber-200 p-1 sm:p-2 m-1 sm:m-2 bg-cyan-300 cursor-pointer mt-auto"
-                              >
-                                   Mark as Present
-                              </button>)
-                         ) : null
-                    }
                </div>
           </div>
      )
@@ -182,52 +151,52 @@ function LectureCard({ item, onClick, todayRecordOfStudent }) {
 // lecture stored class details
 // profileData of student
 //mainObject stored lecture data
-function SubmitAttendaceModal({ lecture, profileData, onClose, mainObject, setTodayRecordOfStudent }) {
+function ModalForSubmitAttendace({ lecture, onClose, setSubjectsData, subjectsData }) {
+     const [processing, setProcessing] = useState("idle"); // idle, loading, success, error
      const [attendanceCode, setAttendanceCode] = useState('');
-     // const { lecture, profileData } = selectedLecture;
-     const token = Cookies.get('token')
-     console.log("token from cookie for submit attendace api ", token);
-
-     console.log(profileData);
      const handleSubmit = async (e) => {
           e.preventDefault();
           console.log(attendanceCode);
-          const bodyData = {
-               PIN: attendanceCode,
-               username: profileData.username,
-               department: profileData.department,
-               year: profileData.year,
-               branch: profileData.branch,
-               classId: lecture.classId,
+          setProcessing("loading");
+          const response = await axios.put(`${import.meta.env.VITE_API_URL}/submit-attendance`, {
+               verificationPin: attendanceCode,
                subCode: lecture.subCode,
-               yearBranchObjectId: mainObject._id,
-               studentName: profileData.name,
-          }
-          // Here you would handle the attendance submission logic
-          // For example, validate the code and update the attendance status
-          console.log("Submitting attendance for", lecture.subName, "with code", attendanceCode);
-          console.log(bodyData);
-
-          const response = await axios.put(`${import.meta.env.VITE_API_URL}/submit-attendance`, bodyData, {
+               classId: lecture.classId,
+          }, {
                withCredentials: true,
-               headers: {
-                    authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-               },
           });
-          if (response.data) {
+          if (response.status === 200) {
                console.log(response.data);
-               setTodayRecordOfStudent(response.data.dayRecord.attendance)
+               // alert(response.data.message);
+               setSubjectsData(subjectsData => {
+                    const updated = subjectsData.map(el =>
+                         el.subCode === lecture.subCode
+                              ? { ...el, studentStatus: "present" }
+                              : el
+                    );
+                    console.log("Updated array:", updated);
+                    return updated;
+               });
+               setProcessing("success");
                toast.success("Successfully marked as present your attendance")
-               onClose();
-          } else {
-               // alert("error during submitting attendance", response.data.message)
-               toast.error("error during submitting attendance")
-               console.log("error during submitting attendance");
+          } else if (response.status === 400) {
+               toast.error("Wrong Pin")
+               setProcessing("error");
+               console.log("Wrong Pin");
+          } else if (response.status === 404) {
+               // toast.error("server Not Found")
+               setProcessing("error");
+               setAttendanceCode('')
+               setTimeout(() => {
+                    setProcessing("idle");
+               }, 2000)
           }
+
+          setProcessing(false)
+          onClose();
           // Close the modal after submission
      };
-
+     // if (processing) return <FullPageSpinner message={"Submitting attendance..."} />;
      return (
           <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50">
                <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
@@ -274,10 +243,26 @@ function SubmitAttendaceModal({ lecture, profileData, onClose, mainObject, setTo
                                    Cancel
                               </button>
                               <button
-                                   type="submit"
-                                   className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+                                   type='submit'
+                                   disabled={processing === "loading"}
+                                   className={`
+        flex items-center justify-center gap-2 px-6 py-2 rounded-2xl font-semibold text-white shadow-md transition
+        ${processing === "idle" && "bg-blue-600 hover:bg-blue-700"}
+        ${processing === "loading" && "bg-gray-400 cursor-not-allowed"}
+        ${processing === "success" && "bg-green-600"}
+        ${processing === "error" && "bg-red-600"}
+      `}
                               >
-                                   Submit Attendance
+                                   {processing === "processing" && (
+                                        <span
+                                             className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                                        ></span>
+                                   )}
+
+                                   {processing === "idle" && "Submit"}
+                                   {processing === "loading" && "Processing..."}
+                                   {processing === "success" && "✅ Success"}
+                                   {processing === "error" && "❌ Error"}
                               </button>
                          </div>
                     </form>

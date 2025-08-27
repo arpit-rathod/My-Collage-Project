@@ -1,4 +1,5 @@
 ﻿import jwt from "jsonwebtoken";
+// import cookies from "cookies";
 
 export const adminValidation = (req, res, next) => {
   console.log("admin authentication start");
@@ -21,33 +22,40 @@ export const studentValidation = (req, res, next) => {
 };
 
 export const teacherValidation = (req, res, next) => {
-  console.log("teacher authenticatio start");
+  console.log("teacher validation start");
   if (req.user?.role !== "teacher") {
-    console.log("from teacherValidation, you have not teacher role");
+    console.log("from teacher Validation, you have not teacher role");
     return res.status(403).json({ message: "Access denied. Teachers only." });
   }
-  console.log("teacher authentication completed");
+  console.log("teacher validation completed");
   next();
 };
 
 export const authenticateUser = (req, res, next) => {
-  console.log("authentication of user start ");
-  const token = req.headers.authorization?.split(" ")[1];
-  // const token = req.headers.authorization;
-  if (!token) return res.status(401).json({ message: "No token provided" });
-  console.log("this is token from authenticateUser", token);
-
+  console.log("user authentication start ");
   try {
-    console.log("trying to authenticate user ");
-    const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log("trying to authenticate user ");
-    console.log(decode);
-    console.log("authenticate user completed");
-    req.user = decode.userAvailable; // attach user to the request
+    console.log(req?.body);
+    console.log(req?.query);
+    console.log(req?.params);
+    const auth_token = req.cookies?.auth_token; // 👈 from the cookie
+
+    if (!auth_token) {
+      console.log("No token provided");
+      return res.status(401).json({ message: "No token provided" });
+    }
+    console.log("auth_token is present in cookies");
+    const decode = jwt.verify(auth_token, process.env.JWT_SECRET);
+    if (!decode?.userAvailable) {
+      console.log("Invalid token");
+      return res.status(401).json({ message: "Invalid token" });
+    }
+    req.user = decode?.userAvailable; // attach user to the request
+    console.log("user authentication completed");
     next();
   } catch (error) {
-    console.log("error while authenticate user, with error", error);
-
-    return res.status(403).json({ message: "Invalid token" });
+    console.log("error while user authentication, with error", error);
+    return res.status(500).json({ message: "Invalid token" });
   }
+  // console.log(req.headers.authorization);
+  // const token = req.headers.authorization?.split(" ")[1];
 };

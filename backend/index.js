@@ -6,12 +6,13 @@ import helmet from "helmet";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 import DBConnection from "./DataBaseConnection.js";
+import BranchLectureInfoSchema from "./StudentsFiles/BranchLectureInfoSchema.js";
+import mongoose from "mongoose";
 import appRoutes from "./Routes.js";
-
 dotenv.config();
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -47,6 +48,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.use(cookieParser());
 
 // Helmet for security
 app.use(
@@ -81,14 +83,63 @@ app.use(appRoutes);
 
 // No need to serve frontend from here
 // Do NOT include app.use(express.static(...)) or app.get("*")
-
 // Socket.IO
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
-  socket.on("trubaId", (msg) => {
-    console.log(`New msg from ${msg}`);
-  });
+  const { authToken } = socket.handshake.auth;
+  let decode = null;
+  console.log("auth token", authToken);
+  if (authToken) {
+    decode = jwt.verify(authToken, process.env.JWT_SECRET, (error, user) => {
+      if (error) {
+        if (error.name == "TokenExpiredError") {
+          console.log("JWT Token Expired error:", error);
+          return null;
+        }
+        console.log("Invalid JWT:", error);
+      }
+      console.log("decoded token");
+      return user;
+    });
+  }
+  let searchQuery =
+    decode?.userAvailable?.currentLectureDocId ||
+    decode?.userAvailable?.username;
+  console.log(searchQuery);
+  if (decode?.userAvailable) {
+    async function getGroupIds() {
+      let groupsIdsDocument = null;
+      if (decode?.userAvailable?.role === "teacher") {
+        groupsIdsDocument = await BranchLectureInfoSchema.aggregate([
+          { $unwind: "$subjectsData" }, // flatten subjectsData array
+          { $match: { "subjectsData.username": searchQuery } }, // filter by username
+          {
+            $project: { _id: 0, roomIds: "$subjectsData.teacherRoomId" },
+          }, // keep only teacherRoomId
+        ]);
+      } else if (decode?.userAvailable?.role === "student") {
+        groupsIdsDocument = await BranchLectureInfoSchema.aggregate([
+          { $unwind: "$subjectsData" },
+          { $match: { _id: new mongoose.Types.ObjectId(searchQuery) } },
+          { $project: { _id: 0, roomIds: "$subjectsData.roomId" } },
+        ]);
+      }
+      const teacherRoomIds = groupsIdsDocument.map((doc) => doc.roomIds);
+      console.log(teacherRoomIds);
+      teacherRoomIds.forEach((roomId) => socket.join(roomId));
+      console.log(`User ${searchQuery} joined rooms:`, teacherRoomIds);
+      socket.emit("joinedRooms", teacherRoomIds);
+    }
+    getGroupIds();
+  }
+
+  //   socket.on("lectureUpdate", (data) => {
+  //     console.log(data);
+  //   });
+  //   socket.on("trubaId", (msg) => {
+  //     console.log(`New msg from ${msg}`);
+  //   });
 });
 
 // Start server
