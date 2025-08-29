@@ -19,19 +19,20 @@ export default function LoginModal({ onClose }) {
                if (response.data) {
                     console.log(response.data);
                     if (response.status == 200) {
-                         console.log("cookie set", document.cookie);
-                         if (!document.cookie) {
-                              alert("cookie not set automatically");
-                              const auth_token = response.data?.auth_token;
-                              Cookies.set("auth_token", auth_token);
-                              console.log("manually cookie set in cookies", auth_token);
-                         } else {
-                              alert("cookie automatically set");
-                              console.log("cookie already set", document.cookie);
-                         }
+                         alert("Login successful");
+                         // console.log("cookie set", document.cookie);
+                         // if (!document.cookie) {
+                         //      alert("cookie not set automatically");
+                         //      const auth_token = response.data?.auth_token;
+                         //      Cookies.set("auth_token", auth_token);
+                         //      console.log("manually cookie set in cookies", auth_token);
+                         // } else {
+                         //      alert("cookie automatically set");
+                         //      console.log("cookie already set", document.cookie);
+                         // }
                          setTimeout(() => {
                               window.location.reload();
-                         }, 500);
+                         }, 60000);
                     } else {
                          alert("wrong password")
                     }

@@ -67,7 +67,7 @@ function ProfileModal({ profileImage, navbarHeight }) {
                     console.log("manually cookie removed");
                     setTimeout(() => {
                          window.location.reload();
-                    }, 500);
+                    }, 50000);
                }
           }
      }
