@@ -12,8 +12,8 @@ import cron from "node-cron";
 import BranchLectureInfoSchema from "./StudentsFiles/BranchLectureInfoSchema.js"; // path to your model
 
 const getProfileDetail = async (req, res) => {
+     res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
-     res.setHeader("Access-Control-Allow-Credentials", "true");
      const { username } = req.query;
      try {
           const user = User.finnById(username).select("name avtar");
@@ -103,6 +103,7 @@ const UserLogin = async (req, res) => {
 };
 const UserSignUp = async (req, res) => {
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+     res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
      try {
           const { username, newPassword } = req.body;
 
@@ -143,6 +144,7 @@ const UserSignUp = async (req, res) => {
 // for student
 const getLecturesOfStudent = async (req, res) => {
      res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+     res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
      console.log("getLecturesOfStudent function run ");
      console.log(req.user);
      if (req.user.role !== "student") {
@@ -494,6 +496,7 @@ const getLecturesStatusAndInfo = async (req, res) => {
 // for teacher
 const submitRecord = async (req, res) => {
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+     res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
      const { objectId, index } = req.body;
      console.log(
           objectId,
@@ -535,6 +538,7 @@ const submitRecord = async (req, res) => {
 // for admin
 const postYearBranchInfo = async (req, res) => {
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+     res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
      try {
           const { department, year, branch, subjectsData } = req.body;
           if (!department || !year || !branch || !subjectsData) {
@@ -564,6 +568,7 @@ const postYearBranchInfo = async (req, res) => {
 // for students
 const presentAsMark = async (req, res) => {
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+     res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
      try {
           console.log(req.body);
           const { verificationPin, subCode, classId } = req.body;
