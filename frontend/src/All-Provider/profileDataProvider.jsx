@@ -17,7 +17,6 @@ export const ProfileDataProvider = ({ children }) => {
                     // const response = {}
                     const response = await axios.get(`${import.meta.env.VITE_API_URL}/getProfileAllDetails`, {
                          withCredentials: true,
-                         signal: signal,
                     });
                     console.log("response from profileDataProvider", response.data.user);
                     if (response.status === 200) {
