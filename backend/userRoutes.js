@@ -76,14 +76,13 @@ const UserLogin = async (req, res) => {
                const auth_token = jwt.sign(payload, process.env.JWT_SECRET, {
                     expiresIn: "24h",
                });
+               console.log(process.env.NODE_ENV);
                console.log("token generated ");
                res.cookie("auth_token", auth_token, {
-                    domain: "https://my-collage-project-frontend.onrender.com/",
+                    domain: "my-collage-project-frontend.onrender.com",
                     httpOnly: process.env.NODE_ENV === "production", // Cannot access with JS
                     secure: process.env.NODE_ENV === "production", // Set true for HTTPS
                     sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
-                    // sameSite: "lax", // for working on local host
-                    // sameSite: "strict", // for production
                });
 
                console.log("token saved in cookies");
