@@ -77,9 +77,12 @@ const UserLogin = async (req, res) => {
                     expiresIn: "24h",
                });
                console.log(process.env.NODE_ENV);
+               if (process.env.NODE_ENV === "production") {
+                    console.log(process.env.NODE_ENV);
+               }
                console.log("token generated ");
+               // domain: "my-collage-project-frontend.onrender.com", // when in production for same-site cookie
                res.cookie("auth_token", auth_token, {
-                    domain: "my-collage-project-frontend.onrender.com",
                     httpOnly: process.env.NODE_ENV === "production", // Cannot access with JS
                     secure: process.env.NODE_ENV === "production", // Set true for HTTPS
                     sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
