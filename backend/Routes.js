@@ -8,8 +8,7 @@ app.use(express.json());
 app.use(cookieParser()); // This allows req.cookies to work
 
 import {
-     //For all user, functions
-     getProfileDetail,
+     //For all user, functions     
      getProfileAllDetails,
      UserLogin,
      UserSignUp,
@@ -72,7 +71,6 @@ app.get(
 //for teachers and students
 app.post("/UserSignUp", UserSignUp);
 app.post("/Login", UserLogin);
-app.get("/profileDetails", getProfileDetail);
 app.get("/getProfileAllDetails", authenticateUser, getProfileAllDetails);
 // backend
 app.post("/logout", (req, res) => {
@@ -80,14 +78,14 @@ app.post("/logout", (req, res) => {
      res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
      console.log("logout run cookie token = " + req.cookies?.auth_token);
      if (!req.cookies?.auth_token) {
-          return res.status(201).json({ message: "Not logged in" });
+          return res.status(401).json({ message: "Not logged in" });
      } else {
           res.clearCookie("auth_token", {
-               httpOnly: false,
+               httpOnly: process.env.NODE_ENV === "production",
                secure: process.env.NODE_ENV === "production",
-               sameSite: "None",
+               sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
           });
-          res.status(200).json({ message: "Logged out successfully" });
+          res.status(200).json({ message: "User Logged out successfully" });
      }
 });
 

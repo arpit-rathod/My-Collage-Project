@@ -11,28 +11,14 @@ import cron from "node-cron";
 // import subRecordSchema from "";
 import BranchLectureInfoSchema from "./StudentsFiles/BranchLectureInfoSchema.js"; // path to your model
 
-const getProfileDetail = async (req, res) => {
-     res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
-     res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
-     const { username } = req.query;
-     try {
-          const user = User.finnById(username).select("name avtar");
-          if (!user) {
-               return res.status(404).json({ message: "user details not found" });
-          }
-          return res.status(200).json({ user, message: "data fetched" });
-     } catch (error) {
-          return res.status(500).json({ message: "server error" });
-     }
-};
 const getProfileAllDetails = async (req, res) => {
      res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
      res.header("Access-Control-Allow-Credentials", "true");
      try {
           const username = req.user.username;
-          const user = await User.findOne({ username: username }).select("-password");
-          if (user) {
-               return res.status(200).json({ user, message: "user found" });
+          const userProfile = await User.findOne({ username: username }).select("-password");
+          if (userProfile) {
+               return res.status(200).json({ userProfile, message: "user found" });
           } else {
                return res.status(404).json({ message: "user details not found" });
           }
@@ -94,7 +80,6 @@ const UserLogin = async (req, res) => {
                console.log("token saved in cookies");
                return res.status(200).json({
                     message: "Login successful",
-                    auth_token: auth_token,
                });
           } else {
                console.log(`password not matched for ${username}`);
@@ -103,7 +88,7 @@ const UserLogin = async (req, res) => {
                     .json({ message: `password not matched for ${username}` });
           }
      } catch (error) {
-          return res.status(404).json({ error, message: "catch error" });
+          return res.status(500).json({ error, message: "catch error" });
      }
 };
 const UserSignUp = async (req, res) => {
@@ -121,7 +106,7 @@ const UserSignUp = async (req, res) => {
           console.log("present data " + IfAvailable);
           if (IfAvailable) {
                console.log("username already available");
-               return res.status(200).json({ message: "username already available" });
+               return res.status(409).json({ message: "username already available" });
           }
           const hashedPassword = await bcrypt.hash(newPassword, 1);
           // console.log(hashedPassword);
@@ -131,12 +116,12 @@ const UserSignUp = async (req, res) => {
           });
           await newCreatedUser.save();
 
-          return res.status(200).json({
+          return res.status(201).json({
                message: "User Created successfully",
                user: { _id: newCreatedUser._id, username: newCreatedUser.username },
           });
      } catch (error) {
-          return res.status(404).json({ message: "catch run during signup", error });
+          return res.status(500).json({ message: "catch run during signup", error });
      }
 };
 // for student sent notification for lecture activated
@@ -228,13 +213,13 @@ const getLecturesOfStudent = async (req, res) => {
           //    console.log("student today's record not exists");
           //  }
           //  const attendance = todaysRecordOfStudent?.attendance;
-          return res.status(201).json({
+          return res.status(200).json({
                lectureObject,
                message: "student lectures fetched successfully",
           });
      } catch (error) {
           console.log("Error fetching student lectures: ", error);
-          return res.status(404).json({ message: "data fetch error" });
+          return res.status(500).json({ message: "data fetch error" });
      }
 };
 // for teacher
@@ -243,11 +228,11 @@ const getLecturesOfTeacher = async (req, res) => {
      res.setHeader("Access-Control-Allow-Credentials", "true");
      try {
           console.log("getLecturesOfTeacher run ");
-          const { username } = req.query;
+          const { username } = req.user.username;
           console.log("finding lectures for teacher = ", username);
           if (!username) {
                console.log("all field required");
-               return res.status(400).json({ message: "username required" });
+               return res.status(400).json({ message: "username required in token" });
           }
           const branch = "CSE A";
           const lecturObject = await BranchLectureInfoSchema.findOne({
@@ -291,9 +276,9 @@ const getLecturesOfTeacher = async (req, res) => {
           },
           ]);
           console.log("lecturesData fetched for teacher");
-          return res.status(201).json({ lecturesData, message: "data fetched" });
+          return res.status(200).json({ lecturesData, message: "data fetched" });
      } catch (error) {
-          return res.status(404).json({ message: "data fetch error" });
+          return res.status(500).json({ message: "data fetch error" });
      }
 };
 // for teacher
@@ -308,16 +293,14 @@ const submitPIN = async (req, res) => {
                console.log(" All field mandotory");
                return res.status(400).json({ message: "All field mandotory" });
           }
-          console.log("run2");
           let lectureObjectForUpdatePin = await BranchLectureInfoSchema.findOne({
                _id: new mongoose.Types.ObjectId(objectId),
           });
           // check the target lecture is corrosponding to teacher or not meaning no other teacher can not coordinate another lecture
           if (!lectureObjectForUpdatePin) {
-               console.log("data not found at submit PIN");
-               return res.status(400).json({ message: "All field mandotory" });
+               console.log("teacher document not found to update pin");
+               return res.status(404).json({ message: "teacher document not found to update pin" });
           }
-          console.log("run2");
           console.log("Creating new class object ", lectureObjectForUpdatePin);
           if (lectureObjectForUpdatePin.subjectsData[index].status === "pending") {
                console.log("run3");
@@ -376,10 +359,9 @@ const submitPIN = async (req, res) => {
                     .status(200)
                     .json({ newClassObject, newPin, message: "pin stored" });
           }
-          console.log("run5");
      } catch (error) {
-          console.log("pin does not stored");
-          return res.status(404).json({ message: "pin does not stored", error });
+          console.log("error during submit pin for teacher", error);
+          return res.status(500).json({ message: "error during submit pin for teacher", error });
      }
 };
 // for teacher
@@ -485,7 +467,7 @@ const getLecturesStatusAndInfo = async (req, res) => {
                          searchedLectureDocument.subjectsData.classId
                     );
                }
-               return res.status(202).json({
+               return res.status(200).json({
                     searchedLectureDocument,
                     attendanceDocument,
                     message: "lecture is running or completed",
@@ -529,15 +511,14 @@ const submitRecord = async (req, res) => {
           console.log("updated ", updated);
           if (!updated) {
                return res
-                    .status(301)
+                    .status(404)
                     .json({ message: "Class ID not found in subjectsData" });
           }
-          return res
-               .status(200)
-               .json({ message: "Lecture rocorded successfully", data: updated });
+          return res.status(200)
+               .json({ message: "Lecture recorded successfully", data: updated });
      } catch (error) {
-          console.error("error", error);
-          return res.status(404).json({ error, message: "error from catch" });
+          console.error("error during submit record of lecture for teacher ", error);
+          return res.status(404).json({ message: "error during submit record of lecture for teacher ", error });
      }
 };
 // for admin
@@ -629,7 +610,7 @@ const presentAsMark = async (req, res) => {
                console.log("socket io run at submit attendance ");
           } else {
                console.log("pin not matched");
-               return res.status(401).json({ message: "PIN not Matched" });
+               return res.status(404).json({ message: "PIN not Matched" });
           }
      } catch (error) {
           console.log("error during submitting attendaces");
@@ -639,7 +620,6 @@ const presentAsMark = async (req, res) => {
 export {
      UserSignUp,
      UserLogin,
-     getProfileDetail,
      getProfileAllDetails,
      getLecturesOfTeacher,
      getLecturesStatusAndInfo,

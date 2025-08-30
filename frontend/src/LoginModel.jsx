@@ -2,8 +2,8 @@ import React from "react";
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import Cookies from "js-cookie"
+import toast from "react-hot-toast";
 axios.defaults.withCredentials = true;
-
 export default function LoginModal({ onClose }) {
      const { register, handleSubmit, formState: { errors } } = useForm();
      async function onLogin(data) {
@@ -23,27 +23,26 @@ export default function LoginModal({ onClose }) {
                if (response.data) {
                     console.log(response.data);
                     if (response.status == 200) {
-                         alert("Login successful");
-                         // console.log("cookie set", document.cookie);
-                         // if (!document.cookie) {
-                         //      alert("cookie not set automatically");
-                         //      const auth_token = response.data?.auth_token;
-                         //      Cookies.set("auth_token", auth_token);
-                         //      console.log("manually cookie set in cookies", auth_token);
-                         // } else {
-                         //      alert("cookie automatically set");
-                         //      console.log("cookie already set", document.cookie);
-                         // }
+                         console.log("Login successful");
+                         toast.success("Login successful");
                          setTimeout(() => {
                               window.location.reload();
                          }, 60000);
-                    } else {
-                         alert("wrong password")
+                    } else if (response.status == 400) {
+                         console.log("please fill all fields", response.data)
+                         toast.error("please fill all fields");
+                    } else if (response.status == 404) {
+                         console.log("Invalid username or password", response.data)
+                         toast.error("Invalid username or password");
+                    } else if (response.status == 500) {
+                         console.log("Internal server error", response.data)
+                         toast.error("Internal server error");
                     }
                }
           } catch (error) {
-               alert("Login failed. Please check your credentials.");
-               console.error("Login failed:", error.response?.data || error.message);
+               // alert("Login failed. Please check your credentials.");
+               console.error("Login failed:", error);
+               toast.error("Login failed. Please check your credentials.");
           }
      }
      const inputStyle = `focus:bg-white focus:border-none px-10`

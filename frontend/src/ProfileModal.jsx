@@ -12,31 +12,31 @@ function ProfileModal({ profileImage, navbarHeight }) {
      useEffect(() => {
           console.log("useEffect run at profile modal");
           const fetchData = async () => {
-               let token = Cookies.get("auth_token");
-               if (!token) {
-                    console.log("No auth_token found in cookies");
-                    return;
-               }
-               token = jwtDecode(token);
-               console.log(token.userAvailable.role);
-               setRole(token.userAvailable.role);
+               // let token = Cookies.get("auth_token");
+               // if (!token) {
+               //      console.log("No auth_token found in cookies");
+               //      return;
+               // }
+               // token = jwtDecode(token);
+               // console.log(token.userAvailable.role);
+               // setRole(token.userAvailable.role);
                try {
                     // console.log("Fetching profile data...");
                     const response = await axios.get(`${import.meta.env.VITE_API_URL}/getProfileAllDetails`, {
                          withCredentials: true,
                     });
-                    console.log(response.data.user);
+                    console.log(response.data.userProfile);
                     if (response.status === 200) {
+                         setProfile(response.data.userProfile);
                          setProfileLoading(false);
-                         setProfile(response.data.user);
-                         alert("Profile data fetched successfully");
                          console.log("Profile data fetched successfully");
                     } else if (response.status === 404) {
-                         console.log("User details not found");
-                         alert("User details not found", response.data.message);
+                         console.log("User details not found", response.data.message);
+                    } else if (response.status === 500) {
+                         console.log("Internal server error", response.data.message);
                     }
                } catch (error) {
-                    console.error("Error fetching profile data:", error);
+                    console.error("Error fetching user profile :", error);
                }
           };
 
@@ -53,22 +53,19 @@ function ProfileModal({ profileImage, navbarHeight }) {
           const response = await axios.post(`${import.meta.env.VITE_API_URL}/logout`, {
                withCredentials: true,
           });
-          console.log("logOutUser response", response);
+          console.log("api response of logout user", response);
           if (response.status === 200) {
                alert(response.data.message || "Logged out successfully by server");
                console.log(response.data.message || "Logged out successfully by server");
                setTimeout(() => {
                     window.location.reload();
-               }, 500);
-          } else if (response.status === 201) {
-               if (document.cookie) {
-                    Cookies.remove("auth_token");
-                    alert("manually cookie removed");
-                    console.log("manually cookie removed");
-                    setTimeout(() => {
-                         window.location.reload();
-                    }, 50000);
-               }
+               }, 50000);
+          } else if (response.status === 401) {
+               console.log(response.data.message || "Not logged in");
+               alert("manually cookie removed");
+               setTimeout(() => {
+                    window.location.reload();
+               }, 50000);
           }
      }
 

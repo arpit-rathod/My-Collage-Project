@@ -67,28 +67,40 @@ export default function AttendancePage() {
 
                     });
                     console.log("server response for lecture info = ", lectureinfoResponse);
-                    if (lectureinfoResponse?.data?.searchedLectureDocument?.subjectsData?.status == "pending") {
-                         // Handle pending status
-                         console.log("Lecture is pending:");
-                         setIsLectureActive(false);
-                    } else if (lectureinfoResponse?.data?.searchedLectureDocument?.subjectsData?.status == "running") {
-                         console.log("Lecture is running");
-                         setIsLectureActive(true);
-                         setPin(lectureinfoResponse?.data?.searchedLectureDocument?.subjectsData?.pin);
-                         setAttendancesDocument(lectureinfoResponse?.data?.attendanceDocument);
-                         setAttendanceList(lectureinfoResponse?.data?.attendanceDocument?.record);
-                    } else if (lectureinfoResponse?.data?.searchedLectureDocument?.status == "completed") {
-                         console.log("Lecture is completed:");
-                         setIsLectureCompleted(true);
-                         setPin(lectureinfoResponse?.data?.searchedLectureDocument?.subjectsData?.pin);
-                         setAttendancesDocument(lectureinfoResponse?.data?.attendanceDocument);
-                         setAttendanceList(lectureinfoResponse?.data?.attendanceDocument?.record);
-                    }
-                    console.log("Lecture status checked");
-                    setLectureInfo(lectureinfoResponse?.data?.searchedLectureDocument);
+                    if (lectureinfoResponse.status == 200) {
 
+                         if (lectureinfoResponse?.data?.searchedLectureDocument?.subjectsData?.status == "pending") {
+                              // Handle pending status
+                              console.log("Lecture is pending:");
+                              setIsLectureActive(false);
+                         } else if (lectureinfoResponse?.data?.searchedLectureDocument?.subjectsData?.status == "running") {
+                              console.log("Lecture is running");
+                              setIsLectureActive(true);
+                              setPin(lectureinfoResponse?.data?.searchedLectureDocument?.subjectsData?.pin);
+                              setAttendancesDocument(lectureinfoResponse?.data?.attendanceDocument);
+                              setAttendanceList(lectureinfoResponse?.data?.attendanceDocument?.record);
+                         } else if (lectureinfoResponse?.data?.searchedLectureDocument?.status == "completed") {
+                              console.log("Lecture is completed:");
+                              setIsLectureCompleted(true);
+                              setPin(lectureinfoResponse?.data?.searchedLectureDocument?.subjectsData?.pin);
+                              setAttendancesDocument(lectureinfoResponse?.data?.attendanceDocument);
+                              setAttendanceList(lectureinfoResponse?.data?.attendanceDocument?.record);
+                         }
+                         console.log("Lecture status checked");
+                         setLectureInfo(lectureinfoResponse?.data?.searchedLectureDocument);
+                    } else if (lectureinfoResponse.status == 400) {
+                         console.error("Error fetching lecture info:", lectureinfoResponse.data.message);
+                         toast.error(lectureinfoResponse.data.message);
+                    } else if (lectureinfoResponse.status == 404) {
+                         console.error("Error fetching lecture info:", lectureinfoResponse.data.message);
+                         toast.error(lectureinfoResponse.data.message);
+                    } else if (lectureinfoResponse.status == 500) {
+                         console.error("Error fetching lecture info:", lectureinfoResponse.data.message);
+                         toast.error(lectureinfoResponse.data.message);
+                    }
                } catch (error) {
                     console.error("Error fetching lecture info:", error);
+                    toast.error("Error fetching details");
                }
           };
           fetchLectureInfo()
@@ -112,37 +124,44 @@ export default function AttendancePage() {
                },
                { withCredentials: true }
           );
+          console.log("New PIN generated:", submitPinResponse.data);
           if (submitPinResponse.status === 200) {
-               console.log(submitPinResponse.data.newPin);
                setPin(submitPinResponse.data.newPin);
                setIsLectureActive(true);
                toast.success("Class is activated")
-          } else if (submitPinResponse.status === 304) {
-               submitPinResponse.data.message ? toast.error(submitPinResponse.data.message) : toast.error("Class already activated");
-               toast.error("Class have not activated")
-          } else {
-               toast.error("Error in activating class")
+          } else if (submitPinResponse.status === 400) {
+               console.log("all fields are mandatory");
+               // submitPinResponse.data.message ? toast.error(submitPinResponse.data.message) : toast.error("Class already activated");
+               toast.error("please fill all fields")
+          } else if (submitPinResponse.status === 404) {
+               toast.error("something not found");
+          } else if (submitPinResponse.status === 500) {
+               toast.error("Internal server error");
           }
+
      }
 
      const submitRecord = async () => {
           console.log("submit record fun run.");
           try {
                const response = await axios.put(`${import.meta.env.VITE_API_URL}/submit-record`, { objectId, index }, { withCredentials: true })
-               if (response) {
-                    console.log(response.data);
-                    // toast.success("Class Successfully saved", response.data.message)
-                    // toast.success(`Class Successfully saved: ${response.data.message}`);
+               console.log(response.data);
+               if (response == 200) {
                     isLectureActive(false)
                     isLectureCompleted(true)
                     toast.success("Class Successfully saved", {
                          description: response.data.message
                     });
-
+               } else if (response == 400) {
+                    toast.error("All fields are mandatory");
+               } else if (response == 404) {
+                    toast.error("Something not found");
+               } else if (response == 500) {
+                    toast.error("Internal server error");
                }
           } catch (error) {
                console.log("error during submittin record", error);
-               toast.error("Error in saving class");
+               toast.error("Error in submitting record");
           }
      }
      if (!lectureInfo) {
