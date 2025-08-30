@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import Cookies from "js-cookie"
+axios.defaults.withCredentials = true;
 
 export default function LoginModal({ onClose }) {
      const { register, handleSubmit, formState: { errors } } = useForm();
@@ -15,7 +16,10 @@ export default function LoginModal({ onClose }) {
                // { headers: { authorization: `Bearer ${token}`, } },
                console.log(import.meta.env.VITE_API_URL);
 
-               const response = await axios.post(`${import.meta.env.VITE_API_URL}/Login`, loginInfo);
+               const response = await axios.post(`${import.meta.env.VITE_API_URL}/Login`, loginInfo, {
+                    withCredentials: true,
+
+               });
                if (response.data) {
                     console.log(response.data);
                     if (response.status == 200) {

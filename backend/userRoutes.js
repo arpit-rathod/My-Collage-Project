@@ -41,9 +41,12 @@ const getProfileAllDetails = async (req, res) => {
      }
 };
 const UserLogin = async (req, res) => {
+     res.setHeader("Cache-Control", "no-store");
+     res.setHeader("Content-Security-Policy", "default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; img-src 'self'; connect-src 'self' https://my-collage-project-frontend.onrender.com https://my-collage-project-0ccb.onrender.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; script-src-attr 'none'; upgrade-insecure-requests");
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
      res.setHeader("Access-Control-Allow-Credentials", "true");
      console.log("login function run");
+     res.setHeader("Vary", "Origin");
 
      try {
           const { username, password } = req.body;
