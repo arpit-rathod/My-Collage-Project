@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar.jsx";
 import SlideShow from "./SlideShow.jsx";
 import HomeLinks from "./HomeLinks.jsx";
@@ -7,14 +7,12 @@ import CampusPhotoComponent from "./Basic-Components/campusPhoto.jsx";
 import campusImg from './/.//assets//campusPhoto.jpg'
 export default function Home(props) {
      const [navbarBG, setNavbarBG] = useState("transparent"); // start invisible
-     const [navHeight, setNavHeight] = useState("10vh");
-     useLayoutEffect(() => {
-          const navbar = document.querySelector(".navbar");
-          if (navbar) {
-               setNavHeight(navbar.getBoundingClientRect().height);
-          }
-          console.log(`Navbar Height: ${navHeight}`);
+     const [navbarOpacity, setNavbarOpacity] = useState(0); // start invisible
+     useEffect(() => {
+
+          console.log("Navbar opacity changed:", navbarOpacity);
      }, []);
+
      useEffect(() => {
           const handleScroll = () => {
                const homeLinks = document.querySelector(".home-links"); // target HomeLinks
@@ -22,40 +20,54 @@ export default function Home(props) {
                if (!homeLinks || !navbar) return;
 
                const homeLinksTop = homeLinks.getBoundingClientRect().top;
-               const navbarHeight = navbar.offsetHeight;
-
-               // If HomeLinks touches Navbar area → fade Navbar in
-               if (homeLinksTop <= navbarHeight + 40) {
-                    // setNavbarBG("transition-[background-color_900ms,border-bottom_900ms] bg-[#19243D] border-b-4 border-b-orange-400");
-                    setNavbarBG("bg-[#19243D] border-b-4 transition-bg transition-border-b duration-800"); // dark yellow 
+               const navbarBottom = navbar.getBoundingClientRect().bottom;
+               let D = homeLinksTop - navbarBottom;
+               // console.log(D);
+               if (D < 50) {
+                    let opacity = Math.max(0, Math.min(1, 1 - D / 50));
+                    setNavbarOpacity(opacity);
+                    // console.log(opacity);
+                    setNavbarBG(`bg-gradient-to-r from-gray-200 to-gray-300`);
+                    // console.log(navbarOpacity);
+                    // If HomeLinks touches Navbar area → fade Navbar in
+                    // setNavbarBG(`bg-gradient-to-r from-red-800 to-red-900 border-b-4 `); // dark yellow 
                } else {
+                    setNavbarOpacity(0);
                     setNavbarBG("bg-transparent"); // hidden
                }
+               // const navbarHeight = navbar.offsetHeight;
+               // if (homeLinksTop <= navbarHeight + 60) {
+               // console.log(homeLinksTop);      
+               // transition - bg transition - border - b duration - 800
+               // setNavbarBG("transition-[background-color_900ms,border-bottom_900ms] bg-[#19243D] border-b-4 border-b-orange-400");
+               // } else {
+               // setNavbarBG("bg-transparent"); // hidden
+               // }
                // console.log(`HomeLinks Top: ${homeLinksTop}, Navbar Height: ${navbarHeight}, BG: ${navbarBG}`);
                const scrollY = window.scrollY;
                const campusEle = document.querySelector(".campus-photo"); // target CampusPhoto
                campusEle.style.transform = `translateY(${scrollY * 0.2}px)`; // parallax effect
           };
           window.addEventListener("scroll", handleScroll);
+          setNavbarBG(`bg-gradient-to-r from-red-800 to-red-900`); // dark yellow 
           return () => window.removeEventListener("scroll", handleScroll);
      }, []);
 
      return (
           <div className="relative w-full pb-3">
                {/* Navbar with fade effect */}
-               <Navbar navbarHeight={navHeight}
-                    className={`${navbarBG} navbar absolute z-8 top-0 left-0 w-full`}
+               <Navbar navbarOpacity={navbarOpacity}
+                    className={`${navbarBG}`}
                />
-
                {/* Campus Photo in background */}
-               <CampusPhotoComponent
-                    className="campus-photo relative z-3 top-0 left-0 w-full h-[60vh]"
+               <CampusPhotoComponent id="campus-div"
+                    className="campus-photo relative z-3 top-0 left-0 w-full"
                     campusImg={campusImg}
                     altText="Campus"
                />
 
                {/* HomeLinks (scroll trigger) */}
-               <HomeLinks className="home-links relative z-5 top-[-5vh]" />
+               <HomeLinks className="home-links relative z-5 top-[-10vh]" />
                <Footer />
           </div>
      );

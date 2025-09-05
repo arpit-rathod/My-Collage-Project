@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { io } from "./index.js";
-
 //schemas
 import User from "./UserSchema.js";
 import AttendanceSchema from "./schema/AttendanceSchema.js";
@@ -12,8 +11,7 @@ import cron from "node-cron";
 import BranchLectureInfoSchema from "./StudentsFiles/BranchLectureInfoSchema.js"; // path to your model
 
 const getProfileAllDetails = async (req, res) => {
-     res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
-     res.header("Access-Control-Allow-Credentials", "true");
+     res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL)
      try {
           const username = req.user.username;
           const userProfile = await User.findOne({ username: username }).select("-password");
@@ -43,7 +41,7 @@ const UserLogin = async (req, res) => {
 
           const availableUser = await User.findOne({ username: username });
           if (!availableUser) {
-               console.log("user not available for login ", availableUser);
+               console.log("user not available for login ", username);
                return res.status(404).json("no account found for this username");
           }
           console.log("user available for login ", availableUser.username);
@@ -57,13 +55,17 @@ const UserLogin = async (req, res) => {
                          username: availableUser.username,
                          role: availableUser.role,
                          id: availableUser._id,
+                         name: availableUser.name,
                          ...(availableUser.currentLectureDocId && {
                               currentLectureDocId: availableUser.currentLectureDocId,
                          }), // conditional add
                     },
                };
                const auth_token = jwt.sign(payload, process.env.JWT_SECRET, {
-                    expiresIn: "24h",
+                    expiresIn: "7d",
+               });
+               const uiRole_token = jwt.sign({ role: availableUser.role, username: availableUser.username }, "UI_SECRET", {
+                    expiresIn: "7d",
                });
                console.log(process.env.NODE_ENV);
                if (process.env.NODE_ENV === "production") {
@@ -75,6 +77,13 @@ const UserLogin = async (req, res) => {
                     httpOnly: process.env.NODE_ENV === "production", // Cannot access with JS
                     secure: process.env.NODE_ENV === "production", // Set true for HTTPS
                     sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+               });
+               res.cookie("uiRole_token", uiRole_token, {
+                    httpOnly: false, // Cannot access with JS
+                    secure: process.env.NODE_ENV === "production", // Set true for HTTPS
+                    sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
                });
 
                console.log("token saved in cookies");
@@ -143,40 +152,42 @@ const getLecturesOfStudent = async (req, res) => {
                .json({ message: "Access denied, This page is only for Students" });
      }
      const currentLectureDocId = req.user.currentLectureDocId;
-     console.log("currentLectureDocId: ", currentLectureDocId);
+     console.log("getLectureOfStudent => currentLectureDocId: ", currentLectureDocId);
      try {
           const date = new Date().toISOString().split("T")[0];
           let lectureDocument = await BranchLectureInfoSchema.findOne({
-               _id: currentLectureDocId,
+               _id: new mongoose.Types.ObjectId(currentLectureDocId),
           });
           // if lecture status is running or complete then check the status of attendance for student in corosponding lecture attendance document
 
           let lectureObject = lectureDocument.toObject();
           lectureObject.subjectsData = await Promise.all(
                lectureObject.subjectsData.map(async (subjectElement) => {
-                    let studentStatus = "pending"; // default
-
-                    if (subjectElement.status === "pending") {
+                    let studentStatus = "pending"; // default status
+                    if (subjectElement?.status === "pending") {
                          studentStatus = "pending";
                     } else if (
-                         subjectElement.status === "running" ||
-                         subjectElement.status === "completed"
+                         subjectElement?.status === "running" ||
+                         subjectElement?.status === "complete"
                     ) {
                          // find attendance for that subject
+                         console.log("subject status is running or completed");
                          const attendanceDoc = await AttendanceSchema.findOne({
-                              _id: subjectElement.classId,
+                              _id: new mongoose.Types.ObjectId(subjectElement.classId),
                          });
 
                          if (attendanceDoc) {
-                              const isPresent = attendanceDoc.record.includes(req.user.username);
-
-                              if (subjectElement.status === "running") {
+                              // const isPresent = attendanceDoc.record.includes(req.user.username); // for string in array
+                              const isPresent = Array.isArray(attendanceDoc.record) && attendanceDoc.record.some(obj => obj.username === req.user.username);
+                              console.log("isPresent for student : ", isPresent);
+                              if (subjectElement?.status === "running") {
                                    studentStatus = isPresent ? "present" : "not_marked";
-                              } else if (subjectElement.status === "completed") {
-                                   studentStatus = isPresent ? "Present" : "Absent";
+                              } else if (subjectElement?.status === "complete") {
+                                   studentStatus = isPresent ? "present" : "absent";
                               }
+                              console.log("studentStatus for student : ", studentStatus);
                          } else {
-                              studentStatus = "no_record";
+                              studentStatus = "no_status";
                          }
                     }
 
@@ -185,34 +196,14 @@ const getLecturesOfStudent = async (req, res) => {
                          ...plainSubject,
                          studentStatus,
                     };
-
-                    //  return {
-                    //      ...(subjectElement.toObject ? .() || subjectElement), // convert mongoose object if needed
-                    //      studentStatus,
-                    //  };
                })
           );
-          //  lectureDocument = lectureDocument.toObject;
-          //  lectureDocument.subjectsData = subjectsWithStatus;
-          console.log("Updated lecture document: ", lectureObject);
-
-          //  console.log("lecture document found");
-          //  // have to remove
-          //  const subjectsData = lectureDocument.subjectsData;
-          //  console.log("subjects data found");
-          //  if (!lectureDocument || !subjectsData) {
-          //    console.log("lectureDocument or subjectsData data not found");
-          //    return res.status(201).json({ message: "data not found" });
-          //  }
-          //  const todaysRecordOfStudent = await StudentDayRecord.findOne({
-          //    username: req.user.username,
-          //    date,
-          //  });
-          //  console.log("todaysRecordOfStudent found");
-          //  if (!todaysRecordOfStudent) {
-          //    console.log("student today's record not exists");
-          //  }
-          //  const attendance = todaysRecordOfStudent?.attendance;
+          lectureObject = {
+               ...lectureObject,
+               username: req.user.username,
+               name: req.user.name
+          }
+          console.log("Updated lecture document ");
           return res.status(200).json({
                lectureObject,
                message: "student lectures fetched successfully",
@@ -228,7 +219,8 @@ const getLecturesOfTeacher = async (req, res) => {
      res.setHeader("Access-Control-Allow-Credentials", "true");
      try {
           console.log("getLecturesOfTeacher run ");
-          const { username } = req.user.username;
+          console.log(req.user);
+          const { username } = req.user;
           console.log("finding lectures for teacher = ", username);
           if (!username) {
                console.log("all field required");
@@ -301,8 +293,8 @@ const submitPIN = async (req, res) => {
                console.log("teacher document not found to update pin");
                return res.status(404).json({ message: "teacher document not found to update pin" });
           }
-          console.log("Creating new class object ", lectureObjectForUpdatePin);
-          if (lectureObjectForUpdatePin.subjectsData[index].status === "pending") {
+          console.log("Creating new class object ");
+          if (lectureObjectForUpdatePin.subjectsData[index].status === "pending" || lectureObjectForUpdatePin.subjectsData[index].status === "complete") {
                console.log("run3");
                const newClassObject = new AttendanceSchema({
                     department: lectureObjectForUpdatePin.department,
@@ -347,17 +339,17 @@ const submitPIN = async (req, res) => {
                          [`${updatePath}.status`]: "running",
                          [`${updatePath}.pin`]: pin,
                          [`${updatePath}.classId`]: newClassObject._id,
-                         // "subjectsData.${index}.status": "running",
-                         // "subjectsData.${index}.pin": pin,
-                         // "subjectsData.${index}.classId": newClassObject._id,
                     },
-               });
-               console.log(available);
+               },
+                    { new: true }
+               );
+               const previousAttendanceCount = available.subjectsData[index].previousAttendanceCount;
+               console.log("submitPin fun updated document in the BranchLectureInfoSchema");
                console.log("run4");
-               const newPin = available.subjectsData[index].pin;
+               const storedPin = available.subjectsData[index].pin;
                return res
                     .status(200)
-                    .json({ newClassObject, newPin, message: "pin stored" });
+                    .json({ storedPin: storedPin, message: "pin stored" });
           }
      } catch (error) {
           console.log("error during submit pin for teacher", error);
@@ -409,6 +401,7 @@ const submitPIN = async (req, res) => {
 const getLecturesStatusAndInfo = async (req, res) => {
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
      res.setHeader("Access-Control-Allow-Credentials", "true");
+     var message = null;
      try {
           console.log("get Lectures Status And Info run");
           // prettier-ignore
@@ -429,6 +422,7 @@ const getLecturesStatusAndInfo = async (req, res) => {
                     year: 1,
                     branch: 1,
                     totalStudents: 1,
+                    previousAttendanceCount: 1,
                     subjectsData: { $arrayElemAt: ["$subjectsData", Number(index)] },
                },
           },
@@ -451,9 +445,10 @@ const getLecturesStatusAndInfo = async (req, res) => {
           if (searchedLectureDocument.subjectsData.status === "pending") {
                // console.log("delete subjects from object = ", searchedLectureObject);
                // searchedLectureObject["subjectData"] = lectureElement
+               message = "Lecture is Pending, Please Generate the OTP to start the class"
                return res
-                    .status(202)
-                    .json({ message: "lecture is pending", searchedLectureDocument });
+                    .status(200)
+                    .json({ message: message, searchedLectureDocument });
           } else if (
                searchedLectureDocument.subjectsData.status === "running" ||
                searchedLectureDocument.subjectsData.status === "complete"
@@ -462,16 +457,21 @@ const getLecturesStatusAndInfo = async (req, res) => {
                     _id: searchedLectureDocument.subjectsData.classId,
                });
                if (!attendanceDocument) {
+                    message = "Attendace document not found for current session";
+                    attendanceDocument = null;
                     console.log(
                          "Lecture info not found for classId:",
                          searchedLectureDocument.subjectsData.classId
                     );
+
                }
                return res.status(200).json({
                     searchedLectureDocument,
                     attendanceDocument,
-                    message: "lecture is running or completed",
+                    message: message,
                });
+          } else {
+               return res.status(204).json({ message: "No content available" });
           }
      } catch (error) {
           console.log("error while fetching status and information");
@@ -484,14 +484,15 @@ const getLecturesStatusAndInfo = async (req, res) => {
 const submitRecord = async (req, res) => {
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
      res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
-     const { objectId, index } = req.body;
+     const { objectId, index, currentLectureAttDocId } = req.body;
      console.log(
           objectId,
           index,
+          currentLectureAttDocId,
           "classId for submit its record from submitRecord function"
      );
 
-     if (!objectId || !index) {
+     if (!objectId || !index || !currentLectureAttDocId) {
           return res
                .status(400)
                .json({ message: "All fields are required to submit record" });
@@ -499,15 +500,26 @@ const submitRecord = async (req, res) => {
      console.log("objectId", objectId);
      console.log("index", index);
      const path = `subjectsData.${index}`;
+     const result = await AttendanceSchema.aggregate([
+          { $match: { _id: new mongoose.Types.ObjectId(currentLectureAttDocId) } },
+          { $project: { previousAttendanceCount: { $size: "$record" } } }
+     ]);
+     // Get the count value:
+     console.log("submitRecord => result ", result);
+
+     const previousAttendanceCount = result[0]?.previousAttendanceCount;
+     console.log("submitRecord => previous Attendance Count ", previousAttendanceCount);
+
      try {
           const updated = await BranchLectureInfoSchema.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(objectId) }, {
                $set: {
+                    [`previousAttendanceCount`]: previousAttendanceCount,
                     [`${path}.status`]: "complete",
                },
-               $unset: {
-                    [`${path}.classId`]: "",
-               },
           }, { new: true });
+          // $unset: {
+          //      [`${path}.classId`]: "",
+          // },
           console.log("updated ", updated);
           if (!updated) {
                return res
@@ -584,7 +596,7 @@ const presentAsMark = async (req, res) => {
                if (!mongoose.Types.ObjectId.isValid(classId)) {
                     throw new Error("Invalid classId format");
                }
-               const updateStuAtte = await AttendanceSchema.findOneAndUpdate({ _id: classId }, { $addToSet: { record: req.user.username } }, // or $push
+               const updateStuAtte = await AttendanceSchema.findOneAndUpdate({ _id: classId }, { $addToSet: { record: { username: req.user.username, name: req.user.name } } }, // or $push
                     { new: true }
                );
                console.log("attendance updated ", updateStuAtte.record);
@@ -597,6 +609,7 @@ const presentAsMark = async (req, res) => {
                io.to(result.subjectsData[0].teacherRoomId).emit("newAttendanceEvent", {
                     username: req.user.username,
                     status: "present",
+                    name: req.user.name
                });
                //       io.emit("studentmPresentEvent", {
                //         //   studentName: ,
@@ -617,7 +630,15 @@ const presentAsMark = async (req, res) => {
           return res.status(500).json({ message: "server error", error });
      }
 };
+
+const addStudentAttendaceManually = async (req, res) => {
+     const { bodyData } = req.body;
+     console.log(bodyData);
+     return res.status(200).json({ message: "student attendance marked successfully" });
+}
+
 export {
+     addStudentAttendaceManually,
      UserSignUp,
      UserLogin,
      getProfileAllDetails,
@@ -647,7 +668,7 @@ const resetLectures = async () => {
      }
 };
 // Schedule it to run after 1 minute
-cron.schedule("*/30 * * * *", async () => {
+cron.schedule("*/120 * * * *", async () => {
      // ⏰ Schedule it to run every night at 12:00 AM
      // cron.schedule("0 0 * * *", async () => {
      console.log("🕛 Running midnight reset...");

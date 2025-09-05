@@ -22,7 +22,7 @@ export const ProfileDataProvider = ({ children }) => {
                     if (response.status === 200) {
                          setProfileDataIsLoading(false);
                          setProfileData(response.data.user);
-                         alert("Profile data fetched successfully by profileDataProvider ");
+                         // alert("Profile data fetched successfully by profileDataProvider ");
                          console.log("Profile data fetched successfully");
 
                     } else if (response.status === 404) {

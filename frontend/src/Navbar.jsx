@@ -1,19 +1,32 @@
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useState, useLayoutEffect, useRef } from "react";
 import { NavLink, Outlet } from 'react-router-dom'
 import { useContext } from "react";
 import "./Navbar.css"
-import profileImage from './assets/image.png'
-import { div, tr } from "motion/react-client";
+import student_profile from './assets/student_profile.svg';
+import professor_profile from './assets/professor_profile.svg';
+import admin_profile from './assets/admin_profile.svg';
 import axios from "axios";
 import ProfileModal from "./ProfileModal"
 import FullPageSpinner from ".//animation-components/spinner"
 const LoginModel = lazy(() => import("./LoginModel"))
 export default function Navbar(props) {
-     // const { profileData, profileDataLoading } = useContext(ProfileContext);
+     const [navBarHeight, setNavBarHeight] = useState(0);
+     const [profileImage, setProfileImage] = useState(null);
+     const getNavbarHeight = async () => {
+          const navbar = document.querySelector(".navbar");
+          if (navbar) {
+               console.log(`Navbar Height: ${navBarHeight}`);
+               setNavBarHeight(navbar.offsetHeight);
+               // setNavBarHeight(navbar.getBoundingClientRect().height);
+               console.log(`Navbar Height: ${navBarHeight}`);
+          }
+          return navBarHeight;
+     }
      const [profileModule, setprofileModule] = useState(false);
      const [isLoginModal, setIsLoginModal] = useState(false);
      const [isLoggedIn, setIsLoggedIn] = useState(false);
-     const profileData = false;
+     const [role, setRole] = useState(false);
+
      useEffect(() => {
           const checkLogin = async () => {
                // frontend
@@ -22,9 +35,10 @@ export default function Navbar(props) {
                          withCredentials: true
                     });
                     if (res.status === 200) {
-                         alert("User is logged in");
-                         setIsLoggedIn(true);
                          console.log('User is logged in', res.data);
+                         setIsLoggedIn(true);
+                         console.log('User role ', res.data.user);
+                         setRole(res.data.user.userAvailable.role)
                     } else if (res.status === 401) {
                          alert("User is NOT logged in");
                          console.log('User is NOT logged in');
@@ -35,37 +49,52 @@ export default function Navbar(props) {
           }
           checkLogin();
      }, []);
+     useEffect(() => {
+          console.log("run profile role set");
+
+          if (role == "student") {
+               setProfileImage(student_profile);
+          } else if (role == "teacher") {
+               setProfileImage(professor_profile);
+          } else if (role == "admin") {
+               setProfileImage(admin_profile);
+          }
+     }, [role])
      return (
           <div className={
-               `${props.className} Navbar-container fixed top-0 w-full flex justify-between h-16 border-orange-500 z-50`
+               `navbar Navbar-container fixed top-0 w-full flex justify-between h-32 md:h-18 z-50`
           }>
+               <div style={{ opacity: props.navbarOpacity }} className={`${props.className} absolute w-full h-full z-1`}></div>
                <div className="heading font-bold text-lg md:text-3xl text-red-900 select-none flex items-center px-7 tracking-wide">
                     <p className="md:pr-32 pr-10">
                          {/* Truba Institute of Engineering and Information Technology Bhopal M.P */}
                     </p>
                </div>
-               {isLoggedIn
-                    ? <div className="profileDiv flex items-center gap-3 cursor-pointer hover:bg-orange-800/30 rounded-xl px-3 py-5 pr-5 transition"
-                         onClick={() => setprofileModule(!profileModule)}>
-                         <img className="profileimg h-12 w-12 rounded-full border-2 border-orange-500 shadow-md" src={profileImage} alt="profile" />
-                    </div>
-                    : <div className="LoginDiv flex items-center md:mx-5">
-                         <span className="text-orange-400 bg-white px-4 py-2 rounded-xl hover:bg-orange-100 font-semibold md:text-lg shadow transition duration-150 cursor-pointer"
-                              onClick={() => {
-                                   setIsLoginModal(!isLoginModal);
-                                   console.log("Login modal toggled");
-                              }}>
-                              Login
-                         </span>
-                         {/* <div className={isLoginModal?""}> */}
-                         {isLoginModal &&
-                              <Suspense fallback={<FullPageSpinner size={15} transparentBackground={true}></FullPageSpinner>}>
-                                   <LoginModel onClose={() => setIsLoginModal(false)}></LoginModel>
-                              </Suspense>
-                         }
-                    </div>
+               <div className="profileDiv pr-3 md:5 flex items-center justify-center gap-3 relative opacity-[1] z-10 ">
+                    {isLoggedIn
+                         ?
+                         <div onClick={() => setprofileModule(!profileModule)} className="cursor-pointer">
+                              <img className="profileimg h-20 w-20 md:h-12 md:w-12 rounded-4xl md:rounded-3xl border-2 border-white " src={profileImage} alt="profile" />
+                         </div>
+                         :
+                         <div className="LoginDiv flex items-center md:mx-5 z-10">
+                              <span className="text-orange-400  bg-white px-4 py-2 rounded-xl hover:bg-orange-100 font-semibold md:text-lg shadow transition duration-150 cursor-pointer"
+                                   onClick={() => {
+                                        setIsLoginModal(!isLoginModal);
+                                        console.log("Login modal toggled");
+                                   }}>
+                                   Login
+                              </span>
+                              {/* <div className={isLoginModal?""}> */}
+                         </div>
+                    }
+               </div>
+               {isLoginModal &&
+                    <Suspense fallback={<FullPageSpinner size={15} transparentBackground={true}></FullPageSpinner>}>
+                         <LoginModel onClose={() => setIsLoginModal(false)}></LoginModel>
+                    </Suspense>
                }
-               {profileModule && <ProfileModal navbarHeight={props.navbarHeight} profileImage={profileImage} />}
+               {profileModule && <ProfileModal profileModule={profileModule} setprofileModule={setprofileModule} getNavbarHeight={getNavbarHeight} profileImage={profileImage} />}
           </div >
 
           // <div

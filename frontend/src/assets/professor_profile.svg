@@ -1,0 +1,53 @@
+<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="profBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#b91c1c;stop-opacity:1"/>
+                            <stop offset="100%" style="stop-color:#991b1b;stop-opacity:1"/>
+                        </linearGradient>
+                        <linearGradient id="suitGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#374151;stop-opacity:1"/>
+                            <stop offset="100%" style="stop-color:#1f2937;stop-opacity:1"/>
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Background circle -->
+                    <circle cx="75" cy="75" r="75" fill="url(#profBg)"/>
+                    
+                    <!-- Suit body -->
+                    <path d="M50 120 L50 95 Q50 85 60 85 L90 85 Q100 85 100 95 L100 120 Q100 130 90 130 L60 130 Q50 130 50 120 Z" fill="url(#suitGradient)"/>
+                    
+                    <!-- Shirt -->
+                    <path d="M65 85 L65 130 L85 130 L85 85 Z" fill="white"/>
+                    
+                    <!-- Tie -->
+                    <path d="M72 85 L72 120 L75 125 L78 120 L78 85 Z" fill="#dc2626"/>
+                    
+                    <!-- Face -->
+                    <circle cx="75" cy="65" r="22" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+                    
+                    <!-- Glasses -->
+                    <circle cx="68" cy="62" r="8" fill="none" stroke="#1f2937" stroke-width="2"/>
+                    <circle cx="82" cy="62" r="8" fill="none" stroke="#1f2937" stroke-width="2"/>
+                    <line x1="76" y1="62" x2="74" y2="62" stroke="#1f2937" stroke-width="2"/>
+                    
+                    <!-- Eyes behind glasses -->
+                    <circle cx="68" cy="62" r="2" fill="#1f2937"/>
+                    <circle cx="82" cy="62" r="2" fill="#1f2937"/>
+                    <circle cx="69" cy="61" r="0.5" fill="white"/>
+                    <circle cx="83" cy="61" r="0.5" fill="white"/>
+                    
+                    <!-- Mustache -->
+                    <ellipse cx="75" cy="68" rx="6" ry="2" fill="#374151"/>
+                    
+                    <!-- Hair -->
+                    <path d="M53 55 Q53 35 75 35 Q97 35 97 55 Q97 50 90 45 Q85 40 75 40 Q65 40 60 45 Q53 50 53 55 Z" fill="#6b7280"/>
+                    
+                    <!-- Books on desk -->
+                    <rect x="15" y="125" width="8" height="12" fill="#dc2626" rx="1"/>
+                    <rect x="25" y="123" width="8" height="14" fill="#b91c1c" rx="1"/>
+                    <rect x="35" y="127" width="8" height="10" fill="#991b1b" rx="1"/>
+                    
+                    <!-- Award/Certificate -->
+                    <rect x="110" y="120" width="20" height="15" fill="#fbbf24" rx="2" stroke="#f59e0b" stroke-width="1"/>
+                    <circle cx="120" cy="127" r="3" fill="#dc2626"/>
+                </svg>

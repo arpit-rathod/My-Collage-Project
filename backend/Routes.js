@@ -1,12 +1,7 @@
 import express from "express";
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
-const app = express();
-app.use(bodyParser.json());
-app.use(express.json());
-app.use(cookieParser()); // This allows req.cookies to work
 
+const router = express.Router();
 import {
      //For all user, functions     
      getProfileAllDetails,
@@ -17,6 +12,7 @@ import {
      getLecturesStatusAndInfo,
      submitPIN,
      submitRecord,
+     addStudentAttendaceManually,
      //student functions
      getLecturesOfStudent,
      presentAsMark,
@@ -30,12 +26,12 @@ import {
      authenticateUser,
 } from "./validationsFiles/StuTeaAdminMiddleware.js";
 import e from "express";
-// app.get("/CollectAttendance/attendance-page", attedancePage);
 
 // for teachers
-app.post("/submit-pin", authenticateUser, teacherValidation, submitPIN);
-app.put("/submit-record", authenticateUser, teacherValidation, submitRecord);
-app.get(
+router.post("/submit-pin", authenticateUser, teacherValidation, submitPIN);
+router.post("/add-student-attendace-manually", authenticateUser, teacherValidation, addStudentAttendaceManually);
+router.put("/submit-record", authenticateUser, teacherValidation, submitRecord);
+router.get(
      "/get-lectures-of-teacher",
      authenticateUser,
      teacherValidation,
@@ -47,21 +43,21 @@ app.get(
 //   teacherValidation,
 //   getRunningClassDetails
 // );
-app.get(
-     "/CollectAttendance/get-lecture-info",
+router.get(
+     "/user-lectures/get-lecture-info",
      authenticateUser,
      teacherValidation,
      getLecturesStatusAndInfo
 );
 
 // for students
-app.put(
+router.put(
      "/submit-attendance",
      authenticateUser,
      studentValidation,
      presentAsMark
 );
-app.get(
+router.get(
      "/student-lectures",
      authenticateUser,
      studentValidation,
@@ -69,11 +65,12 @@ app.get(
 );
 
 //for teachers and students
-app.post("/UserSignUp", UserSignUp);
-app.post("/Login", UserLogin);
-app.get("/getProfileAllDetails", authenticateUser, getProfileAllDetails);
+router.post("/UserSignUp", UserSignUp);
+router.post("/Login", UserLogin);
+router.get("/getProfileAllDetails", authenticateUser, getProfileAllDetails);
 // backend
-app.post("/logout", (req, res) => {
+router.post("/logout", (req, res) => {
+     res.setHeader("Access-Control-Allow-Origin", "*");
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
      res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
      console.log("logout run cookie token = " + req.cookies?.auth_token);
@@ -85,13 +82,16 @@ app.post("/logout", (req, res) => {
                secure: process.env.NODE_ENV === "production",
                sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
           });
+          res.clearCookie("uiRole_token", {
+               httpOnly: false,
+               secure: process.env.NODE_ENV === "production",
+               sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+          });
           res.status(200).json({ message: "User Logged out successfully" });
      }
 });
 
-app.get("/me", (req, res) => {
-     res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
-     res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
+router.get("/me", (req, res) => {
      const auth_token = req.cookies.auth_token;
      console.log("auth_token from cookies", auth_token);
 
@@ -102,7 +102,7 @@ app.get("/me", (req, res) => {
 });
 
 //for admin
-app.post(
+router.post(
      "/post-new-branch-data",
      authenticateUser,
      adminValidation,
@@ -110,4 +110,4 @@ app.post(
 );
 // app.post("/create-teacher-lecture", createTeacherLecture);
 
-export default app;
+export default router;

@@ -9,7 +9,7 @@ import CollectAttendance from "./CollectAttendance.jsx";
 import AllCard from "./teacher-modules/teacher-take-attendance-modules/AllCard.jsx";
 import AttendancePage from "./teacher-modules/teacher-take-attendance-modules/AttendancePage.jsx";
 import StudentAllLectures from './Student-Modules/Submit-Attendace/StudentAllLectures.jsx'
-import AllLecture from './AllLecture.jsx'
+
 
 // ✅ Error logging function
 function logErrorToMyService(error, componentStack) {
@@ -17,19 +17,17 @@ function logErrorToMyService(error, componentStack) {
      console.error("Stack:", componentStack);
      // You can send this to your server via fetch/axios here
 }
-
 // ✅ Protected Route (Role-based auth)
 const ProtectedRoute = ({ allowedRole }) => {
-     const token = Cookies.get("auth_token");
+     const token = Cookies.get("uiRole_token"); // get token from cookies
      if (!token) return <Navigate to="/" />;
-
      try {
-          const { userAvailable } = jwtDecode(token);
-          console.log("Decoded Role:", userAvailable.role);
-          return userAvailable.role === allowedRole ? <CollectAttendance /> : <Navigate to="/unauthorized" />;
+          const { role } = jwtDecode(token);
+          console.log("Decoded Role:", role);
+          return role === allowedRole ? <Outlet /> : <Navigate to="/unauthorized" />;
      } catch (err) {
           console.error("Token decode failed:", err);
-          return <Navigate to="/" />;
+          return <Navigate to="/" />; // fallback if token is invalid
      }
 };
 
@@ -67,9 +65,11 @@ function App() {
                          <Route path="/" element={<Home />} />
 
                          {/* Teacher routes */}
-                         <Route path="/user-lectures" element={<ProtectedRoute allowedRole={"teacher"} />}>
-                              <Route index element={<AllCard />} />
-                              <Route path="get-lecture-info/:id/:index" element={<AttendancePage />} />
+                         <Route element={<ProtectedRoute allowedRole={"teacher"}></ProtectedRoute>}>
+                              <Route path="/user-lectures" element={<CollectAttendance />}>
+                                   <Route index element={<AllCard />} />
+                                   <Route path="get-lecture-info/:id/:index" element={<AttendancePage />} />
+                              </Route>
                          </Route>
 
                          {/* Student route */}

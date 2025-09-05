@@ -4,7 +4,7 @@ function CampusPhotoComponent(props) {
      const { campusImg, altText } = props;
      return (
           <div className={`${props.className}`}>
-               <img src={campusImg} alt={altText} className="w-full h-[60vh] object-cover" />
+               <img src={campusImg} alt={altText} className="w-full h-[40vh] md:h-[60vh] object-cover" />
           </div>
      )
 }
