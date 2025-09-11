@@ -80,7 +80,7 @@ const UserLogin = async (req, res) => {
                     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
                });
                res.cookie("uiRole_token", uiRole_token, {
-                    httpOnly: false, // Cannot access with JS
+                    httpOnly: false, // access with JS
                     secure: process.env.NODE_ENV === "production", // Set true for HTTPS
                     sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
                     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
