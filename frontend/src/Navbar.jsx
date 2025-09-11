@@ -50,8 +50,7 @@ export default function Navbar(props) {
           checkLogin();
      }, []);
      useEffect(() => {
-          console.log("run profile role set");
-
+          console.log("run profile set effect");
           if (role == "student") {
                setProfileImage(student_profile);
           } else if (role == "teacher") {

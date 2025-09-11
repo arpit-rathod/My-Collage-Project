@@ -668,9 +668,9 @@ const resetLectures = async () => {
      }
 };
 // Schedule it to run after 1 minute
-cron.schedule("*/120 * * * *", async () => {
-     // ⏰ Schedule it to run every night at 12:00 AM
-     // cron.schedule("0 0 * * *", async () => {
+// cron.schedule("*/1 * * * *", async () => {
+// ⏰ Schedule it to run every night at 12:00 AM
+cron.schedule("0 0 * * *", async () => {
      console.log("🕛 Running midnight reset...");
      await resetLectures();
 });

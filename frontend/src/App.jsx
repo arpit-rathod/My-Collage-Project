@@ -20,14 +20,18 @@ function logErrorToMyService(error, componentStack) {
 // ✅ Protected Route (Role-based auth)
 const ProtectedRoute = ({ allowedRole }) => {
      const token = Cookies.get("uiRole_token"); // get token from cookies
-     if (!token) return <Navigate to="/" />;
+     console.log("ui token Token in ProtectedRoute : ", token);
+     if (!token) {
+          console.log("No token found, redirecting to home");
+          return <Navigate to="/unauthorized" replace />;
+     }
      try {
           const { role } = jwtDecode(token);
           console.log("Decoded Role:", role);
           return role === allowedRole ? <Outlet /> : <Navigate to="/unauthorized" />;
      } catch (err) {
           console.error("Token decode failed:", err);
-          return <Navigate to="/" />; // fallback if token is invalid
+          return <Navigate to="/" replace />;
      }
 };
 
@@ -65,7 +69,7 @@ function App() {
                          <Route path="/" element={<Home />} />
 
                          {/* Teacher routes */}
-                         <Route element={<ProtectedRoute allowedRole={"teacher"}></ProtectedRoute>}>
+                         <Route element={<ProtectedRoute allowedRole={"teacher"} />}>
                               <Route path="/user-lectures" element={<CollectAttendance />}>
                                    <Route index element={<AllCard />} />
                                    <Route path="get-lecture-info/:id/:index" element={<AttendancePage />} />
@@ -73,8 +77,8 @@ function App() {
                          </Route>
 
                          {/* Student route */}
-                         <Route path="/student-classroom" element={<ProtectedRoute allowedRole={"student"} />}>
-                              <Route index element={<StudentAllLectures />} />
+                         <Route element={<ProtectedRoute allowedRole={"student"} />}>
+                              <Route path="/student-classroom" index element={<StudentAllLectures />} />
                               {/* <Route path="get-lecture-info/:id/:index" element={<AttendancePage />} /> */}
                          </Route>
 
