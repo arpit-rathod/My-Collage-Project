@@ -29,8 +29,13 @@ const ProtectedRoute = ({ allowedRole }) => {
      }
      try {
           console.log("Decoding token:", cookies.uiRole_token);
-          const { role } = jwtDecode(cookies.uiRole_token);
-          console.log("Decoded Role:", role);
+          if (cookies.uiRole_token) {
+               const { role } = jwtDecode(cookies.uiRole_token);
+               console.log("Decoded Role:", role);
+          } else {
+               console.log("No token found, redirecting to home");
+               // return <Navigate to="/unauthorized" replace />;
+          }
           // return role === allowedRole ? <Outlet /> : <Navigate to="/unauthorized" />;
      } catch (err) {
           console.error("Token decode failed:", err);

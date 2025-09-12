@@ -84,6 +84,7 @@ const UserLogin = async (req, res) => {
                     secure: process.env.NODE_ENV === "production", // Set true for HTTPS
                     sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
                     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                    domain: process.env.NODE_ENV === "production" ? "my-collage-project-frontend.onrender.com" : "localhost",
                });
 
                console.log("token saved in cookies");
