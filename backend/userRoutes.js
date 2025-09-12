@@ -81,8 +81,8 @@ const UserLogin = async (req, res) => {
                });
                res.cookie("uiRole_token", uiRole_token, {
                     httpOnly: false, // access with JS
-                    secure: process.env.NODE_ENV === "production", // Set true for HTTPS
-                    sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
+                    secure: false, // Set true for HTTPS
+                    sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
                     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
                     domain: process.env.NODE_ENV === "production" ? "my-collage-project-frontend.onrender.com" : "localhost",
                });
