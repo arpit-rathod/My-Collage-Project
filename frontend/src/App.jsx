@@ -17,26 +17,23 @@ function logErrorToMyService(error, componentStack) {
      console.error("Stack:", componentStack);
      // You can send this to your server via fetch/axios here
 }
-// ✅ Protected Route (Role-based auth)
-const token = Cookies.get("uiRole_token"); // get token from cookies
-console.log("uiRole token check : ", token);
 const ProtectedRoute = ({ allowedRole }) => {
      const cookies = Cookies.get(); // get token from cookies
      console.log("ui token Token in ProtectedRoute : ", cookies);
      if (!cookies) {
           console.log("No token found, redirecting to home");
-          // return <Navigate to="/unauthorized" replace />;
+          return <Navigate to="/" replace />;
      }
      try {
           console.log("Decoding token:", cookies.uiRole_token);
           if (cookies.uiRole_token) {
                const { role } = jwtDecode(cookies.uiRole_token);
                console.log("Decoded Role:", role);
+               return role === allowedRole ? <Outlet /> : <Navigate to="/unauthorized" />;
           } else {
                console.log("No token found, redirecting to home");
-               // return <Navigate to="/unauthorized" replace />;
+               return <Navigate to="/" replace />;
           }
-          // return role === allowedRole ? <Outlet /> : <Navigate to="/unauthorized" />;
      } catch (err) {
           console.error("Token decode failed:", err);
           // return <Navigate to="/" replace />;
