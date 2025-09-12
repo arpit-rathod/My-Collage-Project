@@ -9,7 +9,6 @@ console.log(Cookies.get('auth_token'));
 //      auth: { authToken: Cookies.get('auth_token') }
 // })
 const socket = io(import.meta.env.VITE_API_URL, {
-     auth: { authToken: Cookies.get('auth_token') },
      withCredentials: true
 })
 export const SocketContext = React.createContext();

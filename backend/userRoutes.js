@@ -61,12 +61,21 @@ const UserLogin = async (req, res) => {
                          }), // conditional add
                     },
                };
+               if (!payload) {
+                    console.log("payload not generated at login");
+                    return res.status(500).json({ message: "payload not generated" })
+               }
+
                const auth_token = jwt.sign(payload, process.env.JWT_SECRET, {
                     expiresIn: "7d",
                });
                const uiRole_token = jwt.sign({ role: availableUser.role, username: availableUser.username }, "UI_SECRET", {
                     expiresIn: "7d",
                });
+               if (!auth_token || !uiRole_token) {
+                    console.log("auth_token or uiRole_token not generated at login");
+                    return res.status(500).json({ message: "auth_token or uiRole_token not generated" })
+               }
                console.log(process.env.NODE_ENV);
                if (process.env.NODE_ENV === "production") {
                     console.log(process.env.NODE_ENV);
@@ -87,7 +96,7 @@ const UserLogin = async (req, res) => {
                //      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
                // });
 
-               console.log("token saved in cookies");
+               console.log("token saved in cookies at login");
                return res.status(200).json({
                     message: "Login successful",
                     uiRole_token: uiRole_token,

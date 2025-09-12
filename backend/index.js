@@ -175,9 +175,10 @@ async function addStudentAttendaceManually(userId, bodyData, callback) {
 
 io.on("connection", (socket) => {
      console.log(`User connected: ${socket.id}`);
-     const { authToken } = socket.handshake.auth;
+     // const { authToken } = socket.handshake.auth;
      const cookies = cookie.parse(socket.handshake.headers.cookie || "");
      console.log(cookies);
+     const authToken = cookies.auth_token;
      let decode = null;
      let userId = null;
      console.log("auth token", authToken);

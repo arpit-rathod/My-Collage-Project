@@ -121,7 +121,6 @@ export default function AttendancePage() {
                teacherUsername: lectureInfo.subjectsData.username, // teacher
                docId: lectureInfo._id,
                studentUsername: rollNumber, // student to mark present
-               name: "arpi"
           }
 
           // Example: teacher marks student manually
