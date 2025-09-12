@@ -81,6 +81,9 @@ const UserLogin = async (req, res) => {
                });
                res.cookie("uiRole_token", uiRole_token, {
                     httpOnly: false,
+                    sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
+                    secure: process.env.NODE_ENV === "production", // Set true for HTTPS
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
                });
 
                console.log("token saved in cookies");
