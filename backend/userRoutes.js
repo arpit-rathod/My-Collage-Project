@@ -79,16 +79,18 @@ const UserLogin = async (req, res) => {
                     sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
                     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
                });
-               res.cookie("uiRole_token", uiRole_token, {
-                    httpOnly: false,
-                    sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
-                    secure: process.env.NODE_ENV === "production", // Set true for HTTPS
-                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-               });
+               // Note : cookie is not accessible in JS so set cookie manually for UI role based rendering
+               // res.cookie("uiRole_token", uiRole_token, {
+               //      httpOnly: false,
+               //      sameSite: process.env.NODE_ENV === "production" ? "None" : "lax",
+               //      secure: process.env.NODE_ENV === "production", // Set true for HTTPS
+               //      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+               // });
 
                console.log("token saved in cookies");
                return res.status(200).json({
                     message: "Login successful",
+                    uiRole_token: uiRole_token,
                });
           } else {
                console.log(`password not matched for ${username}`);

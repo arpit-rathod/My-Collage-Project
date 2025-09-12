@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
+import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 
 axios.defaults.withCredentials = true;
@@ -27,6 +28,7 @@ export default function LoginModal({ onClose }) {
                if (response.data) {
                     console.log(response.data);
                     if (response.status == 200) {
+                         Cookies.set("uiRole_token", response.data.uiRole_token);
                          console.log("Login successful");
                          toast.success("Login successful");
                          setTimeout(() => {
