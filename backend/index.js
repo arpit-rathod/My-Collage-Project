@@ -9,6 +9,7 @@ import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import DBConnection from "./DataBaseConnection.js";
 import BranchLectureInfoSchema from "./StudentsFiles/BranchLectureInfoSchema.js";
+import StudentGroupSchema from "./schema/studentgroupsSchema.js";
 import mongoose from "mongoose";
 import router from "./Routes.js";
 dotenv.config();
@@ -118,11 +119,32 @@ async function addStudentAttendaceManually(userId, bodyData, callback) {
                return callback({ success: false, message: "Invalid lecture data" });
           }
           var studentUsername = bodyData.studentUsername;
-          const studentIdentity = lectureDetailsDoc[0].student[0];
+          const studentGroupId = lectureDetailsDoc[0]?.studentGroupDocId
+          const studentGroupDoc = await StudentGroupSchema.aggregate([
+               {
+                    // Match the document by _id
+                    $match: { _id: studentGroupId }
+               },
+               {
+                    // Project a new field "studentExists"
+                    $project: {
+                         group_name: 1,
+                         studentObject: {
+                              $filter: {
+                                   input: "$group",          // the array field
+                                   as: "student",
+                                   cond: { $eq: ["$$student.username", "0114CS231023"] }
+                              }
+                         }
+                    },
+               }
+          ]);
+          const studentIdentity = studentGroupDoc[0].studentObject[0];
           if (studentIdentity.username !== bodyData.studentUsername) {
-               console.log("student not exist", lectureDetailsDoc[0].student[0].username);
+               console.log("student not exist", studentIdentity[0].username);
                return callback({ success: false, message: "Invalid Student" })
           }
+
 
           const result = await AttendanceSchema.updateOne(
                { _id: new ObjectId(lectureDetailsDoc[0].subjectsData[0].classId) }, // match document by _id
@@ -222,6 +244,14 @@ io.on("connection", (socket) => {
                          { $unwind: "$subjectsData" },
                          { $match: { _id: new mongoose.Types.ObjectId(searchQuery) } },
                          { $project: { _id: 0, roomIds: "$subjectsData.roomId" } },
+                    ]);
+               } else if (decode?.userAvailable?.role === "admin") {
+                    // admin can join all rooms of all teachers 
+                    groupsIdsDocument = await BranchLectureInfoSchema.aggregate([
+                         { $unwind: "$subjectsData" }, // flatten subjectsData array
+                         {
+                              $project: { _id: 0, roomIds: "$subjectsData.teacherRoomId" },
+                         }, // keep only teacherRoomId
                     ]);
                }
                console.log("socket teacher groups doc => ", groupsIdsDocument);

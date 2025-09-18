@@ -9,7 +9,9 @@ import CollectAttendance from "./CollectAttendance.jsx";
 import AllCard from "./teacher-modules/teacher-take-attendance-modules/AllCard.jsx";
 import AttendancePage from "./teacher-modules/teacher-take-attendance-modules/AttendancePage.jsx";
 import StudentAllLectures from './Student-Modules/Submit-Attendace/StudentAllLectures.jsx'
-
+import AddStudentProfile from './admin_modules/add_student.jsx';
+import AddBranchYearDoc from './admin_modules/add_branch_year_doc.jsx';
+import AddSubjectToBranchYear from './admin_modules/addSubjectToBranchYear.jsx';
 
 // ✅ Error logging function
 function logErrorToMyService(error, componentStack) {
@@ -78,13 +80,22 @@ function App() {
                               <Route path="/user-lectures" element={<CollectAttendance />}>
                                    <Route index element={<AllCard />} />
                                    <Route path="get-lecture-info/:id/:index" element={<AttendancePage />} />
-                              </Route>
+                              </Route
+                              >
                          </Route>
 
                          {/* Student route */}
                          <Route element={<ProtectedRoute allowedRole={"student"} />}>
                               <Route path="/student-classroom" index element={<StudentAllLectures />} />
                               {/* <Route path="get-lecture-info/:id/:index" element={<AttendancePage />} /> */}
+                         </Route>
+
+                         {/* Admin route */}
+                         <Route element={<ProtectedRoute allowedRole={"admin"} />}>
+                              <Route path="/admin/manage_students" element={<AddStudentProfile />} />
+                              <Route path="/add-branch-year-doc" element={<AddBranchYearDoc />} />
+                              <Route path="/add-subject-to-branch-year" element={<AddSubjectToBranchYear />} />
+                              {/* <Route path="/admin-dashboard" element={<AdminDashboard />} /> */}
                          </Route>
 
                          {/* Unauthorized */}

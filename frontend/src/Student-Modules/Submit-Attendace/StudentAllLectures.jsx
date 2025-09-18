@@ -234,15 +234,35 @@ export default function SubmitAttendance() {
 
                     {/* Subjects Grid */}
                     {/*  lg:grid-cols-3 xl:grid-cols-4 */}
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-5">
-                         {subjectsData?.map((item, index) => (
-                              <LectureCard
-                                   key={index}
-                                   item={item}
-                                   onClick={() => handleOpenModal(item)}
-                              />
-                         ))}
-                    </div>
+                    {subjectsData.length != 0 ? (
+
+                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-5">
+                              {subjectsData?.map((item, index) => (
+                                   <LectureCard
+                                        key={index}
+                                        item={item}
+                                        onClick={() => handleOpenModal(item)}
+                                   />
+                              ))}
+                         </div>
+                    ) : (
+                         <div className='text-center mb-8'>
+                              <div className='bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-red-300 p-6'>
+                                   <div className='flex items-center justify-center gap-3 mb-4'>
+                                        <div className='bg-red-100 p-3 rounded-xl'>
+                                             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  {/* <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /> */}
+                                             </svg>
+                                        </div>
+                                        <div>
+                                             <h1 className='text-3xl font-bold text-red-800'>No Lectures Allocated yet</h1>
+                                             <p className='text-red-600 mt-1'>wait for your instructor to allocate lectures</p>
+                                        </div>
+                                   </div>
+                              </div>
+                         </div>
+                    )
+                    }
                </div>
                {/* Modal Component */}
                {showModal && selectedLecture && (

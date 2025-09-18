@@ -172,6 +172,15 @@ function ProfileModal({ profileImage, getNavbarHeight, setprofileModule, profile
                                    )}
                                    {role === "admin" && (
                                         <>
+                                             <SidebarNavLink to="/admin/manage_students" icon="⚙️">
+                                                  Manage Students (ADD/REMOVE)
+                                             </SidebarNavLink>
+                                             <SidebarNavLink to="/add-branch-year-doc" icon="⚙️">
+                                                  Add Branch/Year Document
+                                             </SidebarNavLink>
+                                             <SidebarNavLink to="/add-subject-to-branch-year" icon="⚙️">
+                                                  Add Subject to Branch/Year
+                                             </SidebarNavLink>
                                              <SidebarNavLink to="/admin-dashboard" icon="⚙️">
                                                   Admin Dashboard
                                              </SidebarNavLink>

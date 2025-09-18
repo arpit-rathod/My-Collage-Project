@@ -4,11 +4,12 @@ import { io } from "./index.js";
 //schemas
 import User from "./UserSchema.js";
 import AttendanceSchema from "./schema/AttendanceSchema.js";
-import StudentDayRecord from ".//StudentsFiles/StudentTodayRecord.js"; //student today record schema
 import mongoose from "mongoose";
 import cron from "node-cron";
-// import subRecordSchema from "";
-import BranchLectureInfoSchema from "./StudentsFiles/BranchLectureInfoSchema.js"; // path to your model
+import BranchLectureInfoSchema, { subjectsDataValidator } from "./StudentsFiles/BranchLectureInfoSchema.js"; // path to your model
+import StudentGroupSchema from "./schema/studentgroupsSchema.js";
+const ObjectId = mongoose.Types.ObjectId;
+
 
 const getProfileAllDetails = async (req, res) => {
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL)
@@ -237,11 +238,11 @@ const getLecturesOfTeacher = async (req, res) => {
                console.log("all field required");
                return res.status(400).json({ message: "username required in token" });
           }
-          const branch = "CSE A";
-          const lecturObject = await BranchLectureInfoSchema.findOne({
-               branch: branch,
-          });
-          console.log(lecturObject.year, lecturObject.branch);
+          // const branch = "CSE A";
+          // const lecturObject = await BranchLectureInfoSchema.findOne({
+          //      branch: branch,
+          // });
+          // console.log(lecturObject.year, lecturObject.branch);
 
           const lecturesData = await BranchLectureInfoSchema.aggregate([{
                $match: { "subjectsData.username": username },
@@ -545,34 +546,142 @@ const submitRecord = async (req, res) => {
      }
 };
 // for admin
-const postYearBranchInfo = async (req, res) => {
-     res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
-     res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
+const addBranchYearDoc = async (req, res) => {
      try {
-          const { department, year, branch, subjectsData } = req.body;
-          if (!department || !year || !branch || !subjectsData) {
-               return res.status(400).json({ message: "all field mandotory" });
+          const docObject = req.body;
+
+          // Basic validation
+          if (!docObject.department || !docObject.degree || !docObject.year || !docObject.branch || !docObject.totalStudents) {
+               return res.status(400).json({ error: "Missing required fields." });
           }
-          const available = await BranchLectureInfoSchema.findOne({
+
+          const newStudentsGroup = new StudentGroupSchema({
+               group_name: `${docObject.department}-${docObject.year}-${docObject.branch}`,
+               group: [],
+          });
+          await newStudentsGroup.save();
+          // Create new document
+          const newLecture = new BranchLectureInfoSchema({
+               ...docObject,
+               subjectsData: [], // Empty initially
+               studentGroupDocId: ObjectId.isValid(newStudentsGroup._id) ? newStudentsGroup._id : undefined // Reference to StudentGroupSchema
+          });
+
+          await newLecture.save();
+
+          return res.status(201).json({
+               message: "Lecture document created successfully.",
+               data: newLecture
+          });
+     } catch (err) {
+          console.error("Error creating lecture:", err);
+          return res.status(500).json({ error: "Internal server error." });
+     }
+};
+
+const addSubjectToBranchYear = async (req, res) => {
+     try {
+          const { department, degree, year, branch, subjectObject } = req.body;
+          const subject = subjectObject; // { subName, subCode, username, teacher, pin (optional) }
+          if (!department || !degree || !year || !branch || !subject.subName || !subject.subCode || !subject.username || !subject.teacher) {
+               return res.status(400).json({ error: "All fields (department, degree, year, branch, subName, subCode, username, teacher) are required" });
+          }
+          console.log("Adding subject to:", { department, degree, year, branch });
+          // ✅ Find the branch lecture doc
+          const targetDoc = await BranchLectureInfoSchema.findOne({ department, year, branch });
+          if (!targetDoc) {
+               return res.status(404).json({ error: "Branch lecture info not found" });
+          }
+          console.log("Found target document:", targetDoc._id);
+          // ✅ Check if subject already exists (by subCode or subName)
+          const duplicate = targetDoc.subjectsData.find(s =>
+               s.subCode.toLowerCase() === subject.subCode.toLowerCase() ||
+               s.subName.toLowerCase() === subject.subName.toLowerCase()
+          );
+
+          if (duplicate) {
+               console.log("Duplicate subject found:", duplicate);
+               return res.status(400).json({ error: "Subject already exists in this branch" });
+          }
+          // await subjectsDataValidator(subject);
+          const validSubject = new mongoose.Document(subject, subjectsDataValidator);
+
+          // ✅ Push new subject
+          targetDoc.subjectsData.push(validSubject);
+          console.log("Updated subjectsData pushed:");
+          // Save updated doc
+          await targetDoc.save();
+          console.log("Target document saved with new subject.");
+          return res.status(200).json({
+               message: "Subject added successfully",
+               data: targetDoc
+          });
+
+     } catch (err) {
+          console.error("Error adding subject:", err);
+          res.status(500).json({ error: "Internal server error" });
+     }
+};
+
+
+const addStudentProfile = async (req, res) => {
+     try {
+          const { username, name, department, year, branch, password, phone, photo, role } = req.body;
+
+          // Step 1: Find lectureDoc for department/year/branch
+          console.log("Finding lecture document for:", { department, year, branch });
+
+          const lectureDoc = await BranchLectureInfoSchema.findOne({ department, year, branch });
+          if (!lectureDoc) {
+               return res.status(404).json({ message: "Lecture document not found" });
+          }
+          const hashedPassword = await bcrypt.hash(password, 1);
+          // Step 2: Create student with reference to lectureDoc
+          const newStudent = new User({
+               name: name,
+               username,
+               password: hashedPassword,
+               role: role || "student",
                department,
                year,
                branch,
+               phone,
+               photo,
+               currentLectureDocId: lectureDoc._id
           });
-          if (available) {
-               return res.status(400).json({ message: "data already exists" });
+
+          await newStudent.save();
+
+          // Step 3: Find studentGroup doc by reference in lectureDoc
+          const studentGroupId = lectureDoc.studentGroupDocId;
+          console.log("Finding student group document with ID:", studentGroupId);
+
+          const studentGroupDoc = await StudentGroupSchema.findOne({ _id: studentGroupId });
+
+          if (!studentGroupDoc) {
+               return res.status(404).json({ message: "Student group not found" });
           }
-          const newData = new BranchLectureInfoSchema({
-               department: department,
-               year: year,
-               branch: branch,
-               subjectsData: subjectsData,
+
+          // Step 4: Push student into group array if not already present
+          const alreadyExists = studentGroupDoc.group.some(s => s.username === username);
+          if (!alreadyExists) {
+               studentGroupDoc.group.push({ name, username });
+               await studentGroupDoc.save();
+          }
+          console.log("Student added as user and to group:", studentGroupDoc.group);
+
+          res.status(201).json({
+               message: "Student created successfully",
+               student: newStudent
           });
-          await newData.save();
-          return res.status(200).json({ message: "data created", newData });
-     } catch (error) {
-          return res.status(400).json({ message: "can not submit data" });
+
+     } catch (err) {
+          console.error("Error in /add-student:", err);
+          res.status(500).json({ message: "Internal server error", error: err.message });
      }
 };
+
+
 // mark as present
 // for students
 const presentAsMark = async (req, res) => {
@@ -659,7 +768,9 @@ export {
      submitRecord,
      getLecturesOfStudent,
      presentAsMark,
-     postYearBranchInfo,
+     addStudentProfile,
+     addBranchYearDoc,
+     addSubjectToBranchYear
 };
 // getRunningClassDetails
 const resetLectures = async () => {
@@ -685,4 +796,7 @@ cron.schedule("0 0 * * *", async () => {
      console.log("🕛 Running midnight reset...");
      await resetLectures();
 });
+
+
+
 // await resetLectures();

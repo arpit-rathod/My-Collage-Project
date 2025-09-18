@@ -28,7 +28,7 @@ export default function LoginModal({ onClose }) {
                if (response.data) {
                     console.log(response.data);
                     if (response.status == 200) {
-                         Cookies.set("uiRole_token", response.data.uiRole_token);
+                         Cookies.set("uiRole_token", response.data.uiRole_token, { expires: 7 });
                          console.log("Login successful");
                          toast.success("Login successful");
                          setTimeout(() => {

@@ -17,7 +17,9 @@ import {
      getLecturesOfStudent,
      presentAsMark,
      //admin functions
-     postYearBranchInfo,
+     addStudentProfile,
+     addBranchYearDoc,
+     addSubjectToBranchYear,
 } from "./userRoutes.js";
 import {
      adminValidation,
@@ -102,12 +104,30 @@ router.get("/me", (req, res) => {
 });
 
 //for admin
+// router.post(
+//      "/post-new-branch-data",
+//      authenticateUser,
+//      adminValidation,
+//      postYearBranchInfo
+// );
 router.post(
-     "/post-new-branch-data",
+     "/add-student-profile",
      authenticateUser,
      adminValidation,
-     postYearBranchInfo
+     addStudentProfile
+);
+router.post(
+     "/add-branch-year-doc",
+     authenticateUser,
+     adminValidation,
+     addBranchYearDoc
 );
 // app.post("/create-teacher-lecture", createTeacherLecture);
+router.post(
+     "/add-subject-to-branch-year",
+     authenticateUser,
+     adminValidation,
+     addSubjectToBranchYear
+);
 
 export default router;

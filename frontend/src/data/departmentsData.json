@@ -1,0 +1,132 @@
+﻿{
+  "engineering": {
+    "bachelor of technology": {
+      "branches": [
+        "computer science & engineering (cse)",
+        "information technology (it)",
+        "electronics & communication engineering (ece)",
+        "electrical engineering (ee)",
+        "mechanical engineering (me)",
+        "civil engineering (ce)",
+        "chemical engineering (che)",
+        "biotechnology (bt)",
+        "automobile engineering (ae)",
+        "aerospace engineering",
+        "mining engineering",
+        "metallurgical engineering",
+        "petroleum engineering",
+        "agricultural engineering",
+        "textile engineering",
+        "marine engineering",
+        "environmental engineering"
+      ],
+      "requiredYear": ["first-year", "second-year", "third-year", "fourth-year"]
+    },
+    "master of technology": {
+      "branches": [
+        "artificial intelligence (ai)",
+        "machine learning (ml)",
+        "data science",
+        "cybersecurity",
+        "software engineering",
+        "vlsi design",
+        "embedded systems",
+        "power systems",
+        "signal processing",
+        "control systems",
+        "thermal engineering",
+        "robotics & automation",
+        "design engineering",
+        "manufacturing systems",
+        "structural engineering",
+        "geotechnical engineering",
+        "transportation engineering",
+        "water resources & environmental engineering",
+        "process engineering",
+        "bioprocess technology",
+        "food technology"
+      ],
+      "requiredYear": ["first-year", "second-year"]
+    }
+  },
+  "pharmacy": {
+    "bachelor": {
+      "branches": [
+        "b.pharm (bachelor of pharmacy)",
+        "pharm.d (doctor of pharmacy)"
+      ],
+      "requiredYear": ["first-year", "second-year", "third-year", "fourth-year"]
+    },
+    "master": {
+      "branches": [
+        "m.pharm (pharmaceutical chemistry)",
+        "m.pharm (pharmacology)",
+        "m.pharm (pharmaceutics)",
+        "m.pharm (pharmaceutical analysis)"
+      ],
+      "requiredYear": ["first-year", "second-year"]
+    },
+    "specializations": [
+      "pharmacognosy (medicinal plants)",
+      "pharmaceutical biotechnology",
+      "clinical pharmacy",
+      "industrial pharmacy"
+    ]
+  },
+  "science and technology": {
+    "bachelor": {
+      "branches": [
+        "b.sc in physics",
+        "b.sc in chemistry",
+        "b.sc in mathematics",
+        "b.sc in computer science",
+        "b.sc in biotechnology",
+        "b.sc in microbiology",
+        "b.sc in environmental science",
+        "bachelor of computer applications (bca)"
+      ],
+      "requiredYear": ["first-year", "second-year", "third-year"]
+    },
+    "master": {
+      "branches": [
+        "m.sc in physics",
+        "m.sc in chemistry",
+        "m.sc in mathematics",
+        "m.sc in computer science",
+        "m.sc in biotechnology",
+        "m.sc in microbiology",
+        "m.sc in environmental science",
+        "master of computer applications (mca)"
+      ],
+      "requiredYear": ["first-year", "second-year"]
+    }
+  },
+  "law": {
+    "bachelor": {
+      "branches": [
+        "ll.b (bachelor of laws)",
+        "b.a. ll.b (integrated law program)",
+        "bba ll.b",
+        "b.com ll.b"
+      ],
+      "requiredYear": ["first-year", "second-year", "third-year", "fourth-year", "fifth-year"]
+    },
+    "master": {
+      "branches": [
+        "ll.m (master of laws)",
+        "ll.m in international law",
+        "ll.m in criminal law",
+        "ll.m in corporate law",
+        "ll.m in constitutional law"
+      ],
+      "requiredYear": ["first-year", "second-year"]
+    },
+    "specializations": [
+      "human rights law",
+      "intellectual property rights (ipr)",
+      "environmental law",
+      "cyber law",
+      "business law"
+    ]
+  }
+}
