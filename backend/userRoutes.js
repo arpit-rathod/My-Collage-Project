@@ -2,13 +2,31 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { io } from "./index.js";
 //schemas
-import User from "./UserSchema.js";
+import { User } from "./UserSchema.js";
 import AttendanceSchema from "./schema/AttendanceSchema.js";
 import mongoose from "mongoose";
 import cron from "node-cron";
 import BranchLectureInfoSchema, { subjectsDataValidator } from "./StudentsFiles/BranchLectureInfoSchema.js"; // path to your model
 import StudentGroupSchema from "./schema/studentgroupsSchema.js";
+
 const ObjectId = mongoose.Types.ObjectId;
+
+const errorHandlerAndReturnError = async (res, err) => {
+     if (err.code === 11000) {
+          console.error("Duplicate key error:", err.keyValue);
+          console.log(Object.keys(err.keyValue));
+
+          // Example: if 'username' is unique
+          let duplicateKeys = Object.keys(err.keyValue);
+          return res.status(400).json({
+               success: false,
+               message: `${duplicateKeys[0]} ${err.keyValue[duplicateKeys[0]]} is already allocated and used!`
+          });
+     }
+     console.error("Error in /add-student:", err);
+     return res.status(500).json({ err, error: err.message });
+
+}
 
 
 const getProfileAllDetails = async (req, res) => {
@@ -43,7 +61,7 @@ const UserLogin = async (req, res) => {
           const availableUser = await User.findOne({ username: username });
           if (!availableUser) {
                console.log("user not available for login ", username);
-               return res.status(404).json("no account found for this username");
+               return res.status(404).json({ usernameMsg: "User not found", passwordMsg: "", message: "username not found" });
           }
           console.log("user available for login ", availableUser.username);
           if (
@@ -106,7 +124,7 @@ const UserLogin = async (req, res) => {
                console.log(`password not matched for ${username}`);
                return res
                     .status(404)
-                    .json({ message: `password not matched for ${username}` });
+                    .json({ usernameMsg: "", passwordMsg: "Incorrect Password", message: `password not matched for ${username}` });
           }
      } catch (error) {
           return res.status(500).json({ error, message: "catch error" });
@@ -574,11 +592,9 @@ const addBranchYearDoc = async (req, res) => {
                data: newLecture
           });
      } catch (err) {
-          console.error("Error creating lecture:", err);
-          return res.status(500).json({ error: "Internal server error." });
+          return await errorHandlerAndReturnError(res, err);
      }
 };
-
 const addSubjectToBranchYear = async (req, res) => {
      try {
           const { department, degree, year, branch, subjectObject } = req.body;
@@ -622,8 +638,6 @@ const addSubjectToBranchYear = async (req, res) => {
           res.status(500).json({ error: "Internal server error" });
      }
 };
-
-
 const addStudentProfile = async (req, res) => {
      try {
           const { username, name, department, year, branch, password, phone, photo, role } = req.body;
@@ -676,14 +690,145 @@ const addStudentProfile = async (req, res) => {
           });
 
      } catch (err) {
+          if (err.code === 11000) {
+               console.error("Duplicate key error:", err.keyValue);
+               console.log(Object.keys(err.keyValue));
+
+               // Example: if 'username' is unique
+               let duplicateKeys = Object.keys(err.keyValue);
+               return res.status(400).json({
+                    success: false,
+                    message: `${duplicateKeys[0]} ${err.keyValue[duplicateKeys[0]]} is already allocated and used!`
+               });
+          }
           console.error("Error in /add-student:", err);
           res.status(500).json({ message: "Internal server error", error: err.message });
+     };
+}
+// admin get students by username deparment branch
+const searchStudent = async (req, res) => {
+     console.log("search students fun run ", req.query);
+     const { username, department, branch } = req.query;
+
+     let matchQuery = {};
+
+     if (username.length > 0) {
+          matchQuery.username = { $regex: username, $options: "i" };
      }
-};
+     if (department.length > 0) {
+          matchQuery.department = department;
+     }
+     if (branch.length > 0) {
+          matchQuery.branch = branch;
+     }
+     console.log(matchQuery);
+     if (Object.keys(matchQuery).length < 1) {
+          console.log(matchQuery);
+          return res.status(400).json({ message: "No query provided" })
+     }
+     try {     // Now use aggregation
+          const results = await User.aggregate([
+               { $match: matchQuery },
+               {
+                    $lookup: {
+                         from: "branchlectureinfoschemas",   // 👈 collection name in MongoDB (always plural, lowercase)
+                         localField: "currentLectureDocId",  // field in User
+                         foreignField: "_id",                // field in BranchLectureInfoSchema
+                         as: "lectureInfo"                   // output field
+                    }
+               },
+               {
+                    $unwind: {
+                         path: "$lectureInfo", preserveNullAndEmptyArrays: true
+                    } // flatten array (so you get one object instead of array)
+               },
+               {
+                    $project: {
+                         _id: 1,
+                         username: 1,
+                         name: 1,
+                         // father:1,
+                         phone: 1,
+                         department: "$lectureInfo.department", // pulling from joined collection
+                         branch: "$lectureInfo.branch",
+                         degree: "$lectureInfo.degree"
+                    }
+               }
+          ]);
 
+          // console.log(results);
+          res.status(200).json({ results, message: "res successful" })
+     } catch (error) {
+          console.log(error);
+          res.status(500).json({ error, message: "internal server error" })
+     }
+}
 
-// mark as present
-// for students
+// admin get a student full details for update on update page 
+const studentAllData = async (req, res) => {
+     console.log("get all data of student fun run ", req.query);
+     const { id } = req.query;
+     if (!ObjectId.isValid(id)) {
+          console.log("object id is invalid");
+          return res.status(400).json({ message: "No query provided" })
+     }
+     if (!id) {
+          console.log(id);
+          return res.status(400).json({ message: "No query provided" })
+     }
+     try {     // Now use aggregation
+          const results = await User.aggregate([
+               { $match: { _id: new ObjectId(id) } },
+               {
+                    $lookup: {
+                         from: "branchlectureinfoschemas",   // 👈 collection name in MongoDB (always plural, lowercase)
+                         localField: "currentLectureDocId",  // field in User
+                         foreignField: "_id",                // field in BranchLectureInfoSchema
+                         as: "lectureInfo"                   // output field
+                    }
+               },
+               {
+                    $unwind: {
+                         path: "$lectureInfo", preserveNullAndEmptyArrays: true
+                    } // flatten array (so you get one object instead of array)
+               },
+               {
+                    $project: {
+                         _id: 1,
+                         username: 1,
+                         name: 1,
+                         phone: 1,
+                         email: 1,
+                         // father:1,
+                         phone: 1,
+                         department: "$lectureInfo.department", // pulling from joined collection
+                         branch: "$lectureInfo.branch",
+                         degree: "$lectureInfo.degree",
+                         year: "$lectureInfo.year"
+                    }
+               }
+          ]);
+          let object = results[0]
+          const student = {
+               username: object.username,
+               name: object.name,
+               phone: object.phone,
+               email: object.email,
+          }
+          const academic = {
+               department: object.department,
+               degree: object.degree,
+               branch: object.branch,
+               year: object.year,
+          }
+          res.status(200).json({ student, academic, message: "res successful" })
+     } catch (error) {
+          console.log(error);
+          res.status(500).json({ error, message: "internal server error" })
+     }
+}
+
+// mark as present for students
 const presentAsMark = async (req, res) => {
      res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
      res.setHeader("Access-Control-Allow-Credentials", "true"); // Allow credentials
@@ -723,7 +868,7 @@ const presentAsMark = async (req, res) => {
 
                if (!updateStuAtte) {
                     console.log("class not found to store student attendance");
-                    return res.status(404).json({ message: "Class record not found" });
+                    return res.status(400).json({ message: "Class record not found" });
                }
                console.log(result.subjectsData[0].teacherRoomId);
                io.to(result.subjectsData[0].teacherRoomId).emit("newAttendanceEvent", {
@@ -750,12 +895,99 @@ const presentAsMark = async (req, res) => {
           return res.status(500).json({ message: "server error", error });
      }
 };
-
+// admin manually add student attendance
 const addStudentAttendaceManually = async (req, res) => {
      const { bodyData } = req.body;
      console.log(bodyData);
      return res.status(200).json({ message: "student attendance marked successfully" });
 }
+// admin update student profile 
+const updateStudentProfile = async (req, res) => {
+     console.log("update student run ", req.params);
+     const { studentId } = req.params;
+
+     const updateData = req.body;
+
+     // Validate ObjectId
+     if (!mongoose.Types.ObjectId.isValid(studentId)) {
+          return res.status(400).json({ message: 'Invalid student ID' });
+     }
+
+     try {
+          const updatedUser = await User.findByIdAndUpdate(
+               studentId,
+               { $set: updateData },
+               { new: true, runValidators: true }
+          );
+          if (!updatedUser) {
+               return res.status(404).json({ message: 'Student not found' });
+          }
+          res.json(updatedUser);
+     } catch (err) {
+          if (err.code === 11000) {
+               console.error("Duplicate key error:", err.keyValue);
+               console.log(Object.keys(err.keyValue));
+
+               // Example: if 'username' is unique
+               let duplicateKeys = Object.keys(err.keyValue);
+               return res.status(400).json({
+                    success: false,
+                    message: `${duplicateKeys[0]} ${err.keyValue[duplicateKeys[0]]} is already allocated and used!`
+               });
+          }
+          console.error("Error in /add-student:", err);
+          res.status(500).json({ message: "Internal server error", error: err.message });
+     }
+};
+const updateStudentAcademicData = async (req, res) => {
+     console.log("update student academic run ", req.params);
+     const { studentId } = req.params;
+     let degree = "bachelor of technology";
+     const academicDetails = req.body;
+     let matchQuery = {}
+     if (academicDetails.department &&
+          academicDetails.branch &&
+          academicDetails.year &&
+          academicDetails.degree
+     ) {
+          matchQuery.department = academicDetails?.department;
+          matchQuery.branch = academicDetails?.branch;
+          matchQuery.year = academicDetails?.year;
+     } else {
+          console.log("all field are required");
+          return res.status(400).json({ message: "Failed : All fields are required to change academic Data" })
+     }
+     // Validate ObjectId
+     if (!mongoose.Types.ObjectId.isValid(studentId)) {
+          return res.status(400).json({ message: 'Invalid student ID' });
+     }
+     try {
+          console.log(matchQuery);
+          const targetDepartDocArr = await BranchLectureInfoSchema.aggregate([
+               { $match: matchQuery },
+               {
+                    $project: {
+                         _id: 1,
+                    }
+               }
+          ]);
+          const targetDepartDocId = targetDepartDocArr[0]?._id;
+          console.log(targetDepartDocId);
+          if (!targetDepartDocId) {
+               return res.status(404).json({ message: 'Error : Document not found for this credentials' });
+          }
+          const studentDoc = await User.findByIdAndUpdate(
+               { _id: new ObjectId(studentId) },
+               { $set: { currentLectureDocId: targetDepartDocId } },
+               { new: true, runValidators: true }
+          );
+          // console.log(studentDoc);
+          return res.status(200).json({ message: "Successfully updated Academic Details" });
+     } catch (error) {
+          console.error('Error updating student:', error);
+          res.status(500).json({ message: 'Error : Server error' });
+     }
+};
 
 export {
      addStudentAttendaceManually,
@@ -770,7 +1002,11 @@ export {
      presentAsMark,
      addStudentProfile,
      addBranchYearDoc,
-     addSubjectToBranchYear
+     addSubjectToBranchYear,
+     searchStudent,
+     studentAllData,
+     updateStudentProfile,
+     updateStudentAcademicData
 };
 // getRunningClassDetails
 const resetLectures = async () => {

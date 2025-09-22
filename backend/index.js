@@ -12,6 +12,13 @@ import BranchLectureInfoSchema from "./StudentsFiles/BranchLectureInfoSchema.js"
 import StudentGroupSchema from "./schema/studentgroupsSchema.js";
 import mongoose from "mongoose";
 import router from "./Routes.js";
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import hpp from 'hpp';
+
+
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +32,22 @@ import cookie from 'cookie'
 
 
 DBConnection();
+// Security Middleware (Modern best practices)
+// Rate limiting
+const limiter = rateLimit({
+     windowMs: 10 * 60 * 1000, // 10 minutes
+     max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
+// Data sanitization
+app.use(mongoSanitize()); // Prevent NoSQL injection
+app.use(xss()); // Clean user input from malicious HTML
+app.use(hpp()); // Prevent HTTP Parameter Pollution
+
 const io = new Server(server, {
      cors: {
           origin: [
@@ -76,12 +99,64 @@ app.use(
 app.use(bodyParser.json());
 app.use(express.json())
 app.use(cookieParser()); // This allows req.cookies to work
-app.use(router); // Use the router for all routes
 
 
+// Logging
+if (process.env.NODE_ENV === 'development') {
+     app.use(morgan('dev'));
+}
+// Health check endpoint
+app.get('/health', (req, res) => {
+     res.json({
+          success: true,
+          message: 'Server is running',
+          timestamp: new Date().toISOString(),
+          environment: process.env.NODE_ENV
+     });
+});
+export const errorHandler = (err, req, res, next) => {
+     let error = { ...err };
+     error.message = err.message;
 
+     // Log error for debugging
+     console.error('Error:', err);
+
+     // Mongoose bad ObjectId
+     if (err.name === 'CastError') {
+          const message = 'Resource not found';
+          error = { message, statusCode: 404 };
+     }
+
+     // Mongoose duplicate key
+     if (err.code === 11000) {
+          const message = 'Duplicate field value entered';
+          error = { message, statusCode: 400 };
+     }
+
+     // Mongoose validation error
+     if (err.name === 'ValidationError') {
+          const message = Object.values(err.errors).map(val => val.message).join(', ');
+          error = { message, statusCode: 400 };
+     }
+
+     res.status(error.statusCode || 500).json({
+          success: false,
+          message: error.message || 'Server Error',
+          ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+     });
+};
+// Error handling middleware (must be last)
+app.use(errorHandler);
 // function to fillter available student usernames
 
+app.use(router); // Use the router for all routes
+// Handle undefined routes
+app.all('*', (req, res) => {
+     res.status(404).json({
+          success: false,
+          message: `Route ${req.originalUrl} not found`
+     });
+});
 async function addStudentAttendaceManually(userId, bodyData, callback) {
      try {
           let lectureDetailsDoc = await BranchLectureInfoSchema.aggregate([
@@ -280,20 +355,6 @@ io.on("connection", (socket) => {
      });
 })
 
-
-// const distPath = path.join(__dirname, "dist"); // Ensure 'dist' is the correct build folder name
-
-// app.use(express.static(distPath));
-
-// // For all GET requests not handled above, send index.html (important for React Router)
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(distPath, "index.html"));
-// });==
-
-
-// No need to serve frontend from here
-// Do NOT include app.use(express.static(...)) or app.get("*")
-// Socket.IO
 // Start server
 const PORT = process.env.PORT || 5005;
 server.listen(PORT, () => {
@@ -301,97 +362,48 @@ server.listen(PORT, () => {
 });
 export { io };
 
-// Export Socket instance if needed
 
-// import express from "express";
-// import DBConnection from "./DataBaseConnection.js";
-// import app from "./Routes.js";
-// import dotenv from "dotenv";
-// import cors from "cors";
-// import http from "http";
-// import { Server } from "socket.io";
-// import helmet from "helmet";
-// import { fileURLToPath } from "url";
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
 
-// dotenv.config();
-// const allowedOrigins = [
-//   "http://localhost:5173",
-//   "https://my-collage-project-frontend.onrender.com",
-// ];
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     allowedHeaders: ["Content-Type", "Authorization"],
-//   })
-// );
-// DBConnection();
-// const PORT = process.env.PORT || 5005;
-// // app.use((req, res, next) => {
-// //   res.setHeader(
-// //     "Content-Security-Policy",
-// //     "default-src 'self'; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"
-// //   );
-// //   next();
-// // });
 
-// app.use(
-//   helmet.contentSecurityPolicy({
-//     directives: {
-//       defaultSrc: ["'self'"],
-//       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-//       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-//       scriptSrc: ["'self'"],
-//       imgSrc: ["'self'"],
-//       connectSrc: ["'self'"],
-//     },
-//   })
-// );
-// app.use(express.json());
-// // hwo create a route for all url end point in backend
 
-// const distPath = path.join(__dirname, "dist"); // Ensure 'dist' is the correct build folder name
 
-// app.use(express.static(distPath));
 
-// // For all GET requests not handled above, send index.html (important for React Router)
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(distPath, "index.html"));
-// });
 
-// const server = http.createServer(app);
-// const io = new Server(server, {
-//   cors: {
-//     origin: allowedOrigins,
-//     methods: ["GET", "POST"],
-//     credentials: true,
-//   },
-// });
+// middleware/errorHandler.js - Global error handling
+/**
+ * Global Error Handler Middleware
+ * Modern error handling with proper logging
+ */
 
-// io.on("connection", (socket) => {
-//   //socket is a client
-//   console.log(`user connected: ${socket.id}`);
-//   socket.on("trubaId", (msg) => {
-//     console.log(`new msg from ${msg}`);
-//   });
-// });
 
-// server.listen(PORT, () => {
-//   console.log(`Server runnig on PORT ${PORT}`);
-// });
+// package.json dependencies needed
+/*
+{
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express-validator": "^7.0.1",
+    "express-rate-limit": "^6.10.0",
+    "helmet": "^7.0.0",
+    "cors": "^2.8.5",
+    "cookie-parser": "^1.4.6",
+    "morgan": "^1.10.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "xss-clean": "^0.1.4",
+    "hpp": "^0.2.3",
+    "validator": "^13.11.0",
+    "dotenv": "^16.3.1"
+  }
+}
+*/
 
-// export { io };
-// // app.use(cors({
-// //      origin: 'http://localhost:3000', // Allow only this frontend
-// //      methods: ['GET', 'POST'], // Allow specific HTTP methods
-// //      allowedHeaders: ['Content-Type', 'Authorization'] // Allow specific headers
-// //  }));
+// .env file configuration
+/*
+NODE_ENV=development
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/your-database
+JWT_SECRET=your-super-secret-jwt-key-here
+FRONTEND_URL=http://localhost:3000
+*/

@@ -6,7 +6,7 @@ import Footer from "./Footer.jsx";
 import CampusPhotoComponent from "./Basic-Components/campusPhoto.jsx";
 import campusImg from './/.//assets//campusPhoto.jpg'
 export default function Home(props) {
-     const [navbarBG, setNavbarBG] = useState("transparent"); // start invisible
+     const [navbarBG, setNavbarBG] = useState("bg-transparent"); // start invisible
      const [navbarOpacity, setNavbarOpacity] = useState(0); // start invisible
      useEffect(() => {
 

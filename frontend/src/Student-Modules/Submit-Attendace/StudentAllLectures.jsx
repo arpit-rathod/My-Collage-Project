@@ -96,11 +96,11 @@ export default function SubmitAttendance() {
      };
      if (lecturesDataLoading) {
           return (
-               <div className='flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 to-maroon-50'>
+               <div className='flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 to-red-50'>
                     <div className='text-center'>
-                         <div className='animate-spin rounded-full h-16 w-16 border-4 border-maroon-500 border-t-transparent mx-auto mb-4'></div>
-                         <h1 className='text-xl font-semibold text-maroon-800'>Loading your classes...</h1>
-                         <p className='text-maroon-600 mt-2'>Please wait</p>
+                         <div className='animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4'></div>
+                         <h1 className='text-xl font-semibold text-red-800'>Loading your classes...</h1>
+                         <p className='text-red-600 mt-2'>Please wait</p>
                     </div>
                </div>
           );
@@ -108,11 +108,11 @@ export default function SubmitAttendance() {
 
      if (!lecturesData || !subjectsData) {
           return (
-               <div className='flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 to-maroon-50'>
+               <div className='flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 to-red-50'>
                     <div className='text-center'>
-                         <div className='animate-spin rounded-full h-16 w-16 border-4 border-maroon-500 border-t-transparent mx-auto mb-4'></div>
-                         <h1 className='text-xl font-semibold text-maroon-800'>Loading your classes...</h1>
-                         <p className='text-maroon-600 mt-2'>Please wait</p>
+                         <div className='animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4'></div>
+                         <h1 className='text-xl font-semibold text-red-800'>Loading your classes...</h1>
+                         <p className='text-red-600 mt-2'>Please wait</p>
                     </div>
                </div>
           );
@@ -120,7 +120,7 @@ export default function SubmitAttendance() {
 
      if (!lecturesData || !subjectsData) {
           return (
-               <div className='flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 to-maroon-50'>
+               <div className='flex justify-center items-center min-h-screen bg-gradient-to-br from-slate-50 to-red-50'>
                     <div className='text-center'>
                          <div className='bg-slate-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4'>
                               <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,19 +133,19 @@ export default function SubmitAttendance() {
                </div>
           );
      }
-
+     const profileStyle = `bg-red-50 rounded-full font-medium bg-transparent`
      return (
-          <div className='min-h-screen bg-gradient-to-br from-slate-50 to-maroon-50 p-0'>
+          <div className='min-h-screen bg-gradient-to-br from-slate-50 to-red-50 p-0'>
                <div className='max-w-7xl mx-auto p-0 py-0 sm:px-0 lg:px-0'>
                     {/* Header Section */}
-                    {/* rounded-2xl shadow-lg border border-maroon-100 */}
-                    <div className='bg-white/80 backdrop-blur-md p-4 sm:p-6 mb-6'>
+                    {/* rounded-2xl shadow-lg border border-red-100 */}
+                    <div className='bg-white/80 backdrop-blur-md p-1 sm:p-6 mb-6'>
                          {/* Back Arrow Button */}
                          <div className='text-center'>
                               <div className="flex">
                                    <button
                                         onClick={handleGoBack}
-                                        className='flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-maroon-100 hover:bg-maroon-200 text-maroon-700 hover:text-maroon-800 rounded-xl transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-maroon-300 focus:ring-offset-2'
+                                        className='flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-800 rounded-xl transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2'
                                         title="Go back"
                                    >
                                         <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,21 +160,21 @@ export default function SubmitAttendance() {
                          </div>
                          <div className='border-3 border-[#800000] rounded-3xl bg-[#800000] '>
 
-                              <div className='flex flex-wrap justify-evenly items-center gap-2 text-lg text-white p-5 bg-[#800000] rounded-t-2xl'>
-                                   <div className='flex flex-wrap justify-between items-center gap-2 text-3xl font-medium'>
+                              <div className='flex flex-wrap justify-evenly items-center gap-2 text-sm md:text-xl text-white p-5 rounded-t-2xl bg-gradient-to-r from-[#800000] to-[#800000] '>
+                                   <div className='flex flex-wrap justify-between items-center gap-2 font-medium'>
                                         <div>{studentInfo.name}</div>
                                         <div>({studentInfo.username})</div>
                                    </div>
-                                   <div className='flex justify-between items-center gap-2'>
-                                        <span className='bg-maroon-50 px-3 py-1 rounded-full font-medium text-3xl'>
+                                   <div className='flex flex-wrap md:flex-nowrap justify-between items-center gap-2'>
+                                        <span className={`${profileStyle}`}>
                                              {lecturesData?.department}
                                         </span>
-                                        <span className='text-maroon-400'>•</span>
-                                        <span className='bg-maroon-50 px-3 py-1 rounded-full font-medium text-3xl'>
+                                        <span className='text-red-400'>•</span>
+                                        <span className={`${profileStyle}`}>
                                              {lecturesData?.year}
                                         </span>
-                                        <span className='text-maroon-400'>•</span>
-                                        <span className='bg-maroon-50 px-3 py-1 rounded-full font-medium text-3xl'>
+                                        <span className='text-red-400'>•</span>
+                                        <span className={`${profileStyle}`}     >
                                              {lecturesData?.branch}
                                         </span>
                                    </div>
@@ -182,11 +182,11 @@ export default function SubmitAttendance() {
 
 
                               {/* Quick Stats */}
-                              <div className='bg-white p-2 m-1 rounded-2xl'>
-                                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 m-2 ">
+                              <div className='p-1 md:p-2 m-1 rounded-2xl'>
+                                   <div className="grid grid-cols-4 gap-1 md:gap-4 m-0 md:m-2 ">
                                         <div className="md:text-xl text-center bg-gradient-to-br from-red-500 to-red-900 text-white p-3 rounded-xl">
                                              <div className="text-2xl font-bold">{stats.total}</div>
-                                             <div className="text-xs text-maroon-100">Total Classes</div>
+                                             <div className="text-xs text-red-100">Total Classes</div>
                                         </div>
                                         <div className="text-center bg-gradient-to-br from-green-500 to-green-900 text-white p-3 rounded-xl">
                                              <div className="text-2xl font-bold">{stats.present}</div>
@@ -205,11 +205,11 @@ export default function SubmitAttendance() {
                          </div>
                          {/* Attendance Progress */}
                          {/* <div className="mt-4">
-                              <div className="flex justify-between text-sm text-maroon-700 mb-2">
+                              <div className="flex justify-between text-sm text-red-700 mb-2">
                                    <span>Attendance Rate</span>
                                    <span>{stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0}%</span>
                               </div>
-                              <div className="w-full bg-maroon-200 rounded-full h-3">
+                              <div className="w-full bg-red-200 rounded-full h-3">
                                    <div
                                         className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full transition-all duration-500"
                                         style={{ width: `${stats.total > 0 ? (stats.present / stats.total) * 100 : 0}%` }}
@@ -219,10 +219,10 @@ export default function SubmitAttendance() {
                     </div>
 
                     {/* Action Bar */}
-                    {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-maroon-100">
+                    {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 bg-white/60 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-red-100">
                          <div>
-                              <h2 className='text-lg font-bold text-maroon-800'>Your Subjects</h2>
-                              <p className='text-sm text-maroon-600'>Mark attendance for live classes</p>
+                              <h2 className='text-lg font-bold text-red-800'>Your Subjects</h2>
+                              <p className='text-sm text-red-600'>Mark attendance for live classes</p>
                          </div>
                          <div className='flex items-center gap-2 text-sm'>
                               <div className='flex items-center gap-2'>
@@ -236,7 +236,7 @@ export default function SubmitAttendance() {
                     {/*  lg:grid-cols-3 xl:grid-cols-4 */}
                     {subjectsData.length != 0 ? (
 
-                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-5">
+                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-5">
                               {subjectsData?.map((item, index) => (
                                    <LectureCard
                                         key={index}
@@ -324,8 +324,8 @@ function LectureCard({ item, onClick }) {
      const config = getStatusConfig();
 
      return (
-          <div className={`bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-200 ${config.border} transition-all duration-200 transform hover:-translate-y-1 hover:scale-102 overflow-hidden h-48`}>
-               <div className="p-4 h-full flex flex-col">
+          <div className={`bg-white rounded-xl shadow-sm hover:shadow-md border-1 border-red-900 ${config.border} transition-all duration-200 transform hover:-translate-y-1 hover:scale-102 overflow-hidden h-48`}>
+               <div className="p-2 md:p-4 h-full flex flex-col">
                     {/* Status Badge */}
                     <div className="flex items-center justify-between mb-3">
                          <div className={`px-2 py-1 rounded-full text-xs font-medium border ${config.badge} ${config.statusBorder}`}>
@@ -339,7 +339,7 @@ function LectureCard({ item, onClick }) {
                          <h3 className="font-bold text-[#800000] text-base mb-1 line-clamp-2">
                               {item.subName}
                          </h3>
-                         <p className="text-sm text-maroon-600 font-mono mb-1">
+                         <p className="text-sm text-red-600 font-mono mb-1">
                               {item.subCode}
                          </p>
                          <p className="text-xs text-slate-600 truncate">
@@ -422,17 +422,17 @@ function ModalForSubmitAttendance({ lecture, onClose, onSuccess }) {
                     onSuccess(lecture.subCode);
                     setTimeout(() => {
                          onClose();
-                    }, 1000);
-               } else if (response.status === 400) {
+                    }, 3000);
+               }
+          } catch (error) {
+               if (error.response.status === 404) {
                     toast.error("Invalid PIN code");
                     setProcessing("error");
-               } else if (response.status === 404) {
+               } else if (error.response.status === 400) {
                     toast.error("Class not found");
                     setProcessing("error");
                }
-          } catch (error) {
                console.error("Attendance submission error:", error);
-               toast.error("Failed to submit attendance");
                setProcessing("error");
           }
 
@@ -446,17 +446,17 @@ function ModalForSubmitAttendance({ lecture, onClose, onSuccess }) {
 
      return (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-               <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-maroon-100 transform transition-all duration-300 scale-100">
+               <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
                     {/* Modal Header */}
-                    <div className="bg-gradient-to-r from-maroon-600 to-maroon-700 text-white p-6 rounded-t-2xl">
+                    <div className="bg-gradient-to-r from-red-50 to-red-100 text-white p-6 rounded-t-2xl">
                          <div className="flex justify-between items-center">
-                              <div>
+                              <div className='text-red-800 grid-cols-1 justify-center'>
                                    <h2 className="text-xl font-bold">Mark Attendance</h2>
-                                   <p className="text-maroon-100 text-sm">Enter the code from your teacher</p>
+                                   <p className=" text-sm">Enter the code from your teacher</p>
                               </div>
                               <button
                                    onClick={onClose}
-                                   className="text-maroon-200 hover:text-white bg-maroon-500/30 hover:bg-maroon-500/50 rounded-lg p-1 transition-colors"
+                                   className="absolute right-3 top-3 text-red-800 hover:text-white bg-red-500/30 hover:bg-red-500/50 rounded-lg p-1 transition-colors"
                               >
                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -466,27 +466,27 @@ function ModalForSubmitAttendance({ lecture, onClose, onSuccess }) {
                     </div>
 
                     {/* Modal Content */}
-                    <div className="p-6">
+                    <div className="p-2 md:p-5">
                          {/* Subject Info */}
-                         <div className="bg-maroon-50 rounded-xl p-4 mb-6 border border-maroon-100">
-                              <h3 className="text-lg font-bold text-maroon-800 mb-1">{lecture.subName}</h3>
-                              <div className="flex items-center justify-between text-sm">
-                                   <span className="text-maroon-600 font-mono">{lecture.subCode}</span>
-                                   <span className="text-maroon-600">{lecture.teacher}</span>
+                         <div className="bg-red-50 rounded-xl p-1 md:p-3 border border-red-100">
+                              <h3 className="text-lg font-bold text-red-800 mb-1">{lecture.subName}</h3>
+                              <div className="flex items-center justify-between text-sm text-red-800 font-mono">
+                                   <span className="">{lecture.subCode}</span>
+                                   <span className="">{lecture.teacher}</span>
                               </div>
                          </div>
 
                          {/* Form */}
                          <form onSubmit={handleSubmit}>
                               <div className="mb-6">
-                                   <label className="block text-sm font-semibold text-maroon-800 mb-3">
+                                   <label className="block text-sm font-semibold text-red-800 mb-3">
                                         Attendance PIN
                                    </label>
                                    <input
                                         type="number"
                                         value={attendanceCode}
                                         onChange={(e) => setAttendanceCode(e.target.value)}
-                                        className="w-full px-4 py-3 text-center text-xl font-mono border-2 border-maroon-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-maroon-500 focus:border-maroon-500 bg-white"
+                                        className="w-full px-4 py-3 text-center text-xl font-mono border-2 border-red-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
                                         placeholder="000000"
                                         maxLength="6"
                                         disabled={processing === "loading"}
@@ -502,7 +502,7 @@ function ModalForSubmitAttendance({ lecture, onClose, onSuccess }) {
                                    <button
                                         type="button"
                                         onClick={onClose}
-                                        className="flex-1 px-4 py-3 text-maroon-700 bg-maroon-100 hover:bg-maroon-200 rounded-xl font-semibold transition-colors"
+                                        className="flex-1 px-4 py-3 text-red-700 bg-red-100 hover:bg-red-200 rounded-xl font-semibold transition-colors"
                                         disabled={processing === "loading"}
                                    >
                                         Cancel

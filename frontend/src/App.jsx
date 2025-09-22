@@ -5,13 +5,25 @@ import Home from "./Home.jsx";
 import Cookies from 'js-cookie'
 import { jwtDecode } from "jwt-decode"
 import { Toaster } from 'react-hot-toast';
+
 import CollectAttendance from "./CollectAttendance.jsx";
 import AllCard from "./teacher-modules/teacher-take-attendance-modules/AllCard.jsx";
 import AttendancePage from "./teacher-modules/teacher-take-attendance-modules/AttendancePage.jsx";
 import StudentAllLectures from './Student-Modules/Submit-Attendace/StudentAllLectures.jsx'
+
 import AddStudentProfile from './admin_modules/add_student.jsx';
 import AddBranchYearDoc from './admin_modules/add_branch_year_doc.jsx';
 import AddSubjectToBranchYear from './admin_modules/addSubjectToBranchYear.jsx';
+import StudentSearch from './admin_modules/findStudents.jsx';
+import FindStudent from './admin_modules/updateStudentProfile.jsx';
+import TeacherRegistrationPage from './admin_modules/registerTeacher.jsx';
+
+import logOutUser from './APICaliingFunctions/logOutApi.js';
+
+if (!Cookies.get('uiRole_token')) {
+     console.log("logOUt run because ui token is not present");
+     logOutUser();
+}
 
 // ✅ Error logging function
 function logErrorToMyService(error, componentStack) {
@@ -19,27 +31,30 @@ function logErrorToMyService(error, componentStack) {
      console.error("Stack:", componentStack);
      // You can send this to your server via fetch/axios here
 }
-const ProtectedRoute = ({ allowedRole }) => {
+import PropTypes from 'prop-types';
+
+const ProtectedRoute = ({ allowedRoles }) => {
+     console.log(allowedRoles);
      const cookies = Cookies.get(); // get token from cookies
      console.log("ui token Token in ProtectedRoute : ", cookies);
-     if (!cookies) {
+     if (!cookies.uiRole_token) {
           console.log("No token found, redirecting to home");
           return <Navigate to="/" replace />;
      }
      try {
-          console.log("Decoding token:", cookies.uiRole_token);
-          if (cookies.uiRole_token) {
-               const { role } = jwtDecode(cookies.uiRole_token);
-               console.log("Decoded Role:", role);
-               return role === allowedRole ? <Outlet /> : <Navigate to="/unauthorized" />;
-          } else {
-               console.log("No token found, redirecting to home");
-               return <Navigate to="/" replace />;
-          }
+          const { role } = jwtDecode(cookies.uiRole_token);
+          console.log(jwtDecode(cookies.uiRole_token));
+          return allowedRoles.includes(role)
+               ? <Outlet />
+               : <Navigate to="/unauthorized" />;
      } catch (err) {
           console.error("Token decode failed:", err);
-          // return <Navigate to="/" replace />;
+          return <Navigate to="/" replace />;
      }
+};
+
+ProtectedRoute.propTypes = {
+     allowedRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 // ✅ Error Boundary class
@@ -76,7 +91,7 @@ function App() {
                          <Route path="/" element={<Home />} />
 
                          {/* Teacher routes */}
-                         <Route element={<ProtectedRoute allowedRole={"teacher"} />}>
+                         <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
                               <Route path="/user-lectures" element={<CollectAttendance />}>
                                    <Route index element={<AllCard />} />
                                    <Route path="get-lecture-info/:id/:index" element={<AttendancePage />} />
@@ -85,21 +100,26 @@ function App() {
                          </Route>
 
                          {/* Student route */}
-                         <Route element={<ProtectedRoute allowedRole={"student"} />}>
+                         <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
                               <Route path="/student-classroom" index element={<StudentAllLectures />} />
                               {/* <Route path="get-lecture-info/:id/:index" element={<AttendancePage />} /> */}
                          </Route>
 
                          {/* Admin route */}
-                         <Route element={<ProtectedRoute allowedRole={"admin"} />}>
+                         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+                              {/* <Route path="/admin-dashboard" element={<AdminDashboard />} /> */}
                               <Route path="/admin/manage_students" element={<AddStudentProfile />} />
                               <Route path="/add-branch-year-doc" element={<AddBranchYearDoc />} />
+                              <Route path='/admin/register/new-teacher' element={<TeacherRegistrationPage />} />
+                         </Route>
+                         {/* For both admin + teacher */}
+                         <Route element={<ProtectedRoute allowedRoles={["admin", "teacher"]} />}>
+                              <Route path="/student-search-page" element={<StudentSearch />} />
+                              <Route path="/student-update-page" element={<FindStudent />} />
                               <Route path="/add-subject-to-branch-year" element={<AddSubjectToBranchYear />} />
-                              {/* <Route path="/admin-dashboard" element={<AdminDashboard />} /> */}
                          </Route>
 
-                         {/* Unauthorized */}
-                         <Route path="/unauthorized" element={<div className="align-middle"><h1>This page is not for you</h1></div>} />
+                         <Route path="/unauthorized" element={<div className="flex flex-wrap justify-between items-center"><h1>This page is not for you</h1></div>} />
 
                     </Routes>
                </ErrorBoundary>

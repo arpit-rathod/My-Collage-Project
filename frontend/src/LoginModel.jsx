@@ -8,9 +8,23 @@ import toast from "react-hot-toast";
 axios.defaults.withCredentials = true;
 export default function LoginModal({ onClose }) {
      const [showPassword, setShowPassword] = useState(false);
-     // const [password, setPassword] = useState('');
-     const [isFocused, setIsFocused] = useState(false);
+     const [APIError, setAPIError] = useState({ usernameMsg: "", passwardMsg: "" });
      const { register, handleSubmit, formState: { errors } } = useForm();
+
+     const handleInputChange = (e) => {
+          const { name, value } = e.target;
+          // remove api error when focus on input after 
+          console.log(name, value);
+
+          setTimeout(() => {
+               setAPIError(prev => (
+                    {
+                         ...prev,
+                         name: ""
+                    }
+               ))
+          }, 5000)
+     }
      async function onLogin(data) {
           const loginInfo = {
                username: data.username,
@@ -34,29 +48,35 @@ export default function LoginModal({ onClose }) {
                          setTimeout(() => {
                               window.location.reload();
                          }, 100);
-                    } else if (response.status == 400) {
-                         console.log("please fill all fields", response.data)
-                         toast.error("please fill all fields");
-                    } else if (response.status == 404) {
-                         console.log("Invalid username or password", response.data)
-                         toast.error("Invalid username or password");
-                    } else if (response.status == 500) {
-                         console.log("Internal server error", response.data)
-                         toast.error("Internal server error");
                     }
                }
           } catch (error) {
                // alert("Login failed. Please check your credentials.");
                console.error("Login failed:", error);
-               toast.error("Login failed. Please check your credentials.");
+               // toast.error("Login failed. Please check your credentials.");
+               if (error.status == 400) {
+                    console.log("please fill all fields")
+                    toast.error("please fill all fields");
+               } else if (error.status == 404) {
+                    console.log(error.response.data)
+                    setAPIError(() => ({
+                         usernameMsg: error.response.data?.usernameMsg,
+                         passwardMsg: error.response.data?.passwordMsg,
+                    }))
+                    toast.error(error.response.data.message);
+               } else if (error.status == 500) {
+                    console.log("Internal server error", error.data)
+                    toast.error("Internal server error");
+               }
+
           }
      }
-     function hadleShowPassward() {
+     function hadleShowPassword() {
           console.log("toggle show passward run");
 
           setShowPassword(!showPassword);
      }
-     const inputStyle = `w-full px-4 py-3 pr-12 rounded-lg transition-all duration-300 ease-in-out outline-none border-2 border-white focus:ring-0 focus:border-none focus:bg-white focus:outline-none ${isFocused ? '' : ''} text-gray-700 focus:text-black-900/100 font-medium`;
+     const inputStyle = `w-full px-4 py-3 pr-12 rounded-lg transition-all duration-300 ease-in-out outline-none border-2 border-white focus:ring-0 focus:border-none focus:bg-white focus:outline-none text-gray-700 focus:text-black-900/100 font-medium`;
      const passwardEyeDivStyle = ``;
      const lableStyle = `block text-sm font-semibold text-white mb-2 mt-5`
      // const inputStyle = `focus:bg-red-500/30 focus:border-none px-10 p-2 w-full mb-2 my-4 rounded-xl hover:scale-105 duration-75`
@@ -83,10 +103,19 @@ export default function LoginModal({ onClose }) {
                                    className={`${inputStyle}`}
                                    // onFocus={() => setIsFocused(true)}
                                    // onBlur={() => setIsFocused(false)}
-                                   {...register("username", { required: true })}
+                                   {...register("username", {
+                                        required: true,
+                                        onChange: (e) => {
+                                             // ✅ this ensures RHF tracks changes
+                                             handleInputChange(e);
+                                        },
+                                   })}
                               />
-
                               <br />
+                              {APIError.usernameMsg &&
+                                   <div className="m-2 p-1  text-sm text-red-800 font-medium" >{APIError.usernameMsg}</div>
+
+                              }
                               {errors.username && <span className="text-sm text-red-900">
                                    Username is required</span>}
                               <label className={`${lableStyle}`}>
@@ -97,22 +126,23 @@ export default function LoginModal({ onClose }) {
                                         type={showPassword ? "text" : "password"}
                                         placeholder="Password"
                                         className={`${inputStyle}`}
-                                        // onFocus={() => setIsFocused(true)}
-                                        // onBlur={() => setIsFocused(false)}
-                                        {...register("password", { required: true })}
+
+                                        {...register("password", {
+                                             required: true,
+                                             onChange: (e) => {
+                                                  handleInputChange(e);
+                                             }
+                                        })}
                                    />
-                                   <div onClick={hadleShowPassward} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-600 transition-colors duration-200 focus:outline-none">
+                                   <div onClick={hadleShowPassword} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-600 transition-colors duration-200 focus:outline-none">
                                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                    </div>
                               </div>
-
-
-
-
-
-
-
                               <br />
+                              {APIError.passwardMsg &&
+                                   <div className="p-2 text-sm text-red-800" >{APIError.passwardMsg}</div>
+
+                              }
                               {errors.password && <span className="text-sm text-red-900">
                                    Password is required</span>}
 

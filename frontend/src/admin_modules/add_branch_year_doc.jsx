@@ -18,6 +18,7 @@ export default function BranchYearForm() {
      });
      const [isSubmitting, setIsSubmitting] = useState(false);
      const [errors, setErrors] = useState({});
+     const [apiErrors, setApiErrors] = useState({ resError: '', formError: '' });
      const [showAdvanced, setShowAdvanced] = useState(false);
 
      // Fetch available degrees when department changes
@@ -118,7 +119,7 @@ export default function BranchYearForm() {
                newErrors.previousAttendanceCount = 'Previous attendance cannot exceed total students';
           }
 
-          setErrors(newErrors);
+          // setErrors(newErrors);
           return Object.keys(newErrors).length === 0;
      };
 
@@ -126,10 +127,13 @@ export default function BranchYearForm() {
           e.preventDefault();
 
           if (!validateForm()) {
-               toast.error('Please fix the errors in the form');
+               // toast.error('Please fix the errors in the form');
+               setApiErrors((prev) => ({
+                    ...prev,
+                    formError: "Fill all required fields"
+               }))
                return;
           }
-
           setIsSubmitting(true);
 
           try {
@@ -152,8 +156,19 @@ export default function BranchYearForm() {
                }
           } catch (error) {
                console.error('Creation error:', error);
-               const message = error.response?.data?.error || 'Failed to create branch document. Please try again.';
-               toast.error(message);
+               const message = error.response?.data?.message || 'Failed to create branch document. Please try again.';
+               setApiErrors(() => (
+                    {
+                         resError: message,
+                    }))
+               const errrrr = apiErrors.resError;
+               console.log(errrrr);
+               setTimeout(() => {
+                    setApiErrors(prev => ({
+                         ...prev,
+                         resError: "",
+                    }))
+               }, 5000)
           } finally {
                setIsSubmitting(false);
           }
@@ -421,6 +436,10 @@ export default function BranchYearForm() {
                               )}
 
                               {/* Action Buttons */}
+                              <div className='p-2'>
+                                   <div className='text-sm text-red-700 text-start'>{apiErrors?.resError}</div>
+                                   <div className='text-sm text-red-700 text-start'>{apiErrors?.formError}</div>
+                              </div>
                               <div className='flex flex-col sm:flex-row gap-4'>
                                    <button
                                         type='button'
@@ -436,7 +455,7 @@ export default function BranchYearForm() {
                                    <button
                                         type='submit'
                                         disabled={isSubmitting}
-                                        className={`flex-1 px-8 py-3 rounded-xl font-semibold text-white shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center gap-3 ${isSubmitting
+                                        className={`flex-1 px-8 py-3 rounded-xl font-semibold text-black shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center gap-3 ${isSubmitting
                                              ? 'bg-gradient-to-r from-slate-400 to-slate-500 cursor-not-allowed'
                                              : 'bg-gradient-to-r from-maroon-600 to-maroon-700 hover:from-maroon-700 hover:to-maroon-800'
                                              }`}

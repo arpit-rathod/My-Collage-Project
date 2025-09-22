@@ -101,35 +101,35 @@ const CollegeSections = (props) => {
      return (
           <div className={`${props.className} bg-white rounded-t-4xl`}>
                <h1
-                    className="text-3xl md:text-5xl font-bold mb-6 text-center"
+                    className="text-xl md:text-3xl font-bold m-5 text-center"
                     style={{ color: "#800000" }}
                >
-                    College Directory
+                    TGI Bhopal MP
                </h1>
 
                {/* Main container for all sections */}
                <div className="container mx-auto w-full ">
                     {/* Grid of all section cards */}
                     <div style={{ width: "100%" }} className="flex justify-center">
-                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:gap-5 lg:gap-10">
+                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-10">
                               {collegeSections.map((section) => (
                                    <div
                                         key={section.id}
-                                        className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:-translate-y-1"
+                                        className="m-1 bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:-translate-y-1"
                                         style={{ borderTop: `4px solid ${section.color}` }}
                                    >
-                                        <div className="p-10">
+                                        <div className="p-4 m-2">
                                              <div className="flex items-center mb-3">
                                                   <div style={{ color: section.color }}>{section.icon}</div>
                                                   <h2
-                                                       className="ml-2 text-xl font-semibold"
+                                                       className="ml-2 text-sm md:text-lg font-semibold"
                                                        style={{ color: section.color }}
                                                   >
                                                        {section.title}
                                                   </h2>
                                              </div>
 
-                                             <p className="text-gray-600 mb-4 h-20">
+                                             <p className="text-gray-600 text-sm mb-4 h-20">
                                                   {section.description}
                                              </p>
 

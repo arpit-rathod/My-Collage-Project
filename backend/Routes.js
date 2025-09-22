@@ -1,5 +1,34 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import { User } from "./UserSchema.js";
+// app.js or server.js - Main application setup
+// import teacherRoutes from './routes/teacherRoutes.js';
+
+import {
+     registerTeacher,
+     getTeachers,
+     getTeacherById,
+     updateTeacher,
+     validateTeacherRegistration,
+     registrationLimiter
+} from './adminEndPoints/registerTeacher.js';
+// } from '../controllers/teacherController.js';
+// import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
+// import { asyncHandler } from './index.js';
+function allowRoles(...roles) {
+     return (req, res, next) => {
+          const userRole = req.user?.role;
+
+          if (roles.includes(userRole)) {
+               return next();
+          }
+
+          return res.status(403).json({ message: "Access denied. Allowed roles: " + roles.join(", ") });
+     };
+}
+
+
+
 
 const router = express.Router();
 import {
@@ -20,6 +49,10 @@ import {
      addStudentProfile,
      addBranchYearDoc,
      addSubjectToBranchYear,
+     searchStudent,
+     studentAllData,
+     updateStudentProfile,
+     updateStudentAcademicData
 } from "./userRoutes.js";
 import {
      adminValidation,
@@ -27,7 +60,13 @@ import {
      studentValidation,
      authenticateUser,
 } from "./validationsFiles/StuTeaAdminMiddleware.js";
-import e from "express";
+
+
+export const asyncHandler = (fn) => {
+     return (req, res, next) => {
+          Promise.resolve(fn(req, res, next)).catch(next);
+     };
+};
 
 // for teachers
 router.post("/submit-pin", authenticateUser, teacherValidation, submitPIN);
@@ -126,8 +165,47 @@ router.post(
 router.post(
      "/add-subject-to-branch-year",
      authenticateUser,
-     adminValidation,
+     allowRoles("teacher", "admin"),
      addSubjectToBranchYear
+);
+router.get(
+     "/find-user-students",
+     authenticateUser,
+     adminValidation,
+     searchStudent
+);
+router.get(
+     "/get-student-all-info",
+     authenticateUser,
+     adminValidation,
+     studentAllData
+);
+router.put(
+     "/api/admin/update/student/profile/:studentId",
+     authenticateUser,
+     adminValidation,
+     updateStudentProfile
+);
+router.put(
+     "/api/admin/update/student/academic/:studentId",
+     authenticateUser,
+     adminValidation,
+     updateStudentAcademicData
+);
+
+// Public Routes (with rate limiting)
+router.post('/api/teacher/register',
+     authenticateUser,
+     validateTeacherRegistration,
+     asyncHandler(registerTeacher)
+);
+router.get('/:id',
+     authenticateUser,
+     asyncHandler(getTeacherById)
+);
+router.put('/:id',
+     authenticateUser,
+     asyncHandler(updateTeacher)
 );
 
 export default router;

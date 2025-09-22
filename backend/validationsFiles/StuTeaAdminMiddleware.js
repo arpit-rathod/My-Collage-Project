@@ -52,8 +52,25 @@ export const authenticateUser = (req, res, next) => {
           console.log("user authentication completed");
           next();
      } catch (error) {
+          if (error.name === 'JsonWebTokenError') {
+               return res.status(401).json({
+                    success: false,
+                    message: 'Invalid token'
+               });
+          }
+          if (error.name === 'TokenExpiredError') {
+               return res.status(401).json({
+                    success: false,
+                    message: 'Token expired'
+               });
+          }
+
+          console.error('Auth middleware error:', error);
+          res.status(500).json({
+               success: false,
+               message: 'Server error during authentication'
+          });
           console.log("error while user authentication, with error", error);
-          return res.status(500).json({ message: "error during user authentication", error });
      }
      // console.log(req.headers.authorization);
      // const token = req.headers.authorization?.split(" ")[1];
