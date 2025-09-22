@@ -1,11 +1,11 @@
-import { ProfileContext } from '../..//All-Provider/profileDataProvider';
+import { ProfileContext } from '../../All-Provider/profileDataProvider';
 import React, { useState, useEffect, lazy, Suspense, useContext } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { FaPlayCircle, FaCheckCircle, FaClock } from 'react-icons/fa';
 import { firstLetterUpperCase } from '../../commonFunctions/getUpperCase';
-export default function AllCard(props) {
+export default function TeacherLectureOutlet(props) {
      const [lectures, setLectures] = useState(null);
      const [lecturesLoading, setLecturesLoading] = useState(false);
      const { profileData, profileDataLoading } = useContext(ProfileContext);
@@ -55,7 +55,7 @@ export default function AllCard(props) {
      return (
           <div className='min-h-screen'>
                {/* Header Section - Responsive */}
-               <div className="sticky top-0 z-10  backdrop-blur-md">
+               <div className="sticky top-0 z-10  backdrop-blur-md bg-gray-200">
                     {/* Cards Container - Fully Responsive */}
                     <div className="max-w-7xl mx-auto px-2 md:px-6 py-2 md:py-8">
                          {lectures.length === 0 ? (
@@ -119,7 +119,7 @@ function LectureCard({ item, item2 }) {
                               {firstLetterUpperCase(item?.department)}
                          </h3>
                          <p className="text-sm  text-[#811d1d]">
-                              {firstLetterUpperCase(item?.year)} • {(item?.branch)}
+                              {firstLetterUpperCase(item?.year)} • {(firstLetterUpperCase(item?.branch))}
                          </p>
                     </div>
 
@@ -127,7 +127,7 @@ function LectureCard({ item, item2 }) {
                     <div className="space-y-2 mb-6">
                          <div className="bg-gradient-to-r from-maroon-50 to-rose-50 rounded-lg p-3 border border-maroon-100">
                               <h4 className="font-semibold text-[#811d1d] text-sm sm:text-base truncate">
-                                   {item2?.subName}
+                                   {firstLetterUpperCase(item2?.subName)}
                               </h4>
                               <p className="text-xs sm:text-sm text-[#811d1d] font-medium">
                                    Code: {item2?.subCode}

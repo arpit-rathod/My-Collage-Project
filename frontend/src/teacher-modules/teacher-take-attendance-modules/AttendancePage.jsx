@@ -235,23 +235,21 @@ export default function AttendancePage() {
                </div>
           );
      }
-     const boxStyle = `bg-white backdrop-blur-md rounded-2xl shadow-sm border-slate-200 p-4 sm:p-6 m-1 md:5`
+     const boxStyle = `bg-white rounded-2xl shadow-sm mb-2 sm:p-4`
      const inputStyle = `w-full outline-none border-dotted border-[1px] border-gray-500 focus:border-black focus:border-solid rounded-lg px-4 py-3 text-center text-lg font-mono  bg-white/60`
-     const headerInfoStyle = `bg-red-50 px-3 py-1 rounded-full font-mono`
+     const headerInfoStyle = `px-3 rounded-full font-semibold`
      return (
-          <div className='min-h-screen'>
-               <div className='max-w-7xl mx-auto'>
+          <div className='min-h-screen bg-gray-200'>
+               <div className='p-1 sm:p-6'>
                     {/* Compact Header */}
                     <div className={`${boxStyle} flex flex-nowrap justify-center`}>
-                         <div className='text-red-900'>
-                              <div className='flex flex-wrap md:flex-nowrap justify-start md:justify-center gap-2 text-lg sm:text-xl lg:text-2xl font-bold text-red-800 mb-2'>
-                                   <span className={`${headerInfoStyle} font - bold`}>{firstLetterUpperCase(lectureInfo?.department)}</span>
-                                   {/* <span className='text-maroon-400'>•</span> */}
-                                   <span className={`${headerInfoStyle} font - bold`}>{firstLetterUpperCase(lectureInfo?.year)}</span>
-                                   {/* <span className='text-maroon-400'>•</span> */}
-                                   <span className={`${headerInfoStyle} font - bold`}>{firstLetterUpperCase(lectureInfo?.branch)}</span>
+                         <div className='text-red-900 p-2 sm:p-4'>
+                              <div className='flex flex-wrap md:flex-nowrap justify-start md:justify-center text-lg sm:text-xl lg:text-2xl font-bold text-red-800 sm:gap-2'>
+                                   <span className={`${headerInfoStyle} font-bold`}>{firstLetterUpperCase(lectureInfo?.department)}</span>
+                                   <span className={`${headerInfoStyle} font-bold`}>{firstLetterUpperCase(lectureInfo?.year)}</span>
+                                   <span className={`${headerInfoStyle} font-bold`}>{firstLetterUpperCase(lectureInfo?.branch)}</span>
                               </div>
-                              <div className='grid grid-cols-1 place-items-start md:flex md:flex-nowraprap md:justify-center items-center text-sm sm:text-base text-maroon-600'>
+                              <div className='grid grid-cols-2 place-items-start md:flex md:flex-nowrap md:justify-center items-center text-sm sm:text-base text-red-800'>
                                    <span className={`${headerInfoStyle} `}>
                                         {firstLetterUpperCase(lectureInfo?.subjectsData?.subName)}
                                    </span>
@@ -303,7 +301,7 @@ export default function AttendancePage() {
                          {/* Left Sidebar - Controls */}
                          <div className='lg:col-span-4 space-y-4'>
                               {/* PIN Generator Card */}
-                              <div className="bg-white backdrop-blur-sm rounded-xl shadow-sm p-4 sm:p-6">
+                              <div className={`${boxStyle} bg-white backdrop-blur-sm rounded-xl shadow-sm p-4 sm:p-6`}>
                                    <div className='flex items-center gap-3 mb-4'>
                                         <div className='p-2 rounded-lg'>
                                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,7 +340,7 @@ export default function AttendancePage() {
                                              <button
                                                   onClick={handleSubmitPin}
                                                   // disabled={checkValidPin}
-                                                  className={`${checkValidPin ? "bg-blue-500" : ""} w - full bg - gradient - to - r from - maroon - 600 to - maroon - 700 hover: from - maroon - 700 hover: to - maroon - 800 text - black font - semibold py - 3 px - 4 rounded - lg transition - all duration - 200 transform hover: -translate - y - 0.5 hover: shadow - lg flex items - center justify - center gap - 2`}>
+                                                  className={`${checkValidPin() ? "bg-blue-500" : ""} w-full bg-gradient-to-r from-maroon-600 to-maroon-700 hover:from-maroon-700 hover:to-maroon-800 text-black font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center gap-2`}>
                                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                                   </svg>

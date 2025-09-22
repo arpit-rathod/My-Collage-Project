@@ -111,7 +111,7 @@ function ProfileModal({ profileImage, getNavbarHeight, setprofileModule, profile
                                         </div>
                                         <div className="flex-1">
                                              <h3 className="text-xl font-semibold text-white mb-1">{profile?.name}</h3>
-                                             <p className="text-red-200 text-sm mb-1">{firstLetterUpperCase(profile?.branch)}</p>
+                                             <p className="text-red-200 text-sm mb-1">{profile?.branch ? firstLetterUpperCase(profile?.branch) : null}</p>
                                              <p className="text-red-300 text-sm font-mono">@{profile?.username}</p>
                                              <div className="mt-2">
                                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/20 text-white capitalize">

@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode"
 import { Toaster } from 'react-hot-toast';
 
 import CollectAttendance from "./CollectAttendance.jsx";
-import AllCard from "./teacher-modules/teacher-take-attendance-modules/AllCard.jsx";
+import TeacherLectureOutlet from "./teacher-modules/teacher-take-attendance-modules/teacherLectureCard.jsx";
 import AttendancePage from "./teacher-modules/teacher-take-attendance-modules/AttendancePage.jsx";
 import StudentAllLectures from './Student-Modules/Submit-Attendace/StudentAllLectures.jsx'
 
@@ -93,7 +93,7 @@ function App() {
                          {/* Teacher routes */}
                          <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
                               <Route path="/user-lectures" element={<CollectAttendance />}>
-                                   <Route index element={<AllCard />} />
+                                   <Route index element={<TeacherLectureOutlet />} />
                                    <Route path="get-lecture-info/:id/:index" element={<AttendancePage />} />
                               </Route
                               >
