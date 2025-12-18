@@ -16,6 +16,7 @@ export default function AddStudentProfile() {
           password: '',
           confirmPassword: '',
           phone: '',
+          email: '',
           photo: '',
           role: 'student'
      });
@@ -28,6 +29,8 @@ export default function AddStudentProfile() {
 
      const [isSubmitting, setIsSubmitting] = useState(false);
      const [errors, setErrors] = useState({});
+     // const [apiErrors, setApiErrors] = useState({});
+     const [apiErrors, setApiErrors] = useState({});
      const [showPassword, setShowPassword] = useState(false);
      const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -172,6 +175,7 @@ export default function AddStudentProfile() {
                     branch: formData.branch,
                     password: formData.password,
                     phone: formData.phone,
+                    email: formData.email,
                     photo: formData.photo,
                     role: formData.role
                };
@@ -212,7 +216,19 @@ export default function AddStudentProfile() {
                setErrors({});
           } catch (error) {
                console.error('Registration error:', error);
-               toast.error(error.response.data.message);
+               toast.error(error.response?.data.message);
+               setApiErrors((prev) => ({
+                    ...prev,
+                    error1: error.response.data?.message,
+                    error2: error.response.data?.errors
+               }))
+               setTimeout(() => {
+                    setApiErrors((prev) => ({
+                         ...prev,
+                         error1: undefined,
+                         error2: undefined,
+                    }))
+               }, 10000)
           } finally {
                setIsSubmitting(false);
           }
@@ -440,6 +456,31 @@ export default function AddStudentProfile() {
                                         </div>
                                         {errors.phone && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors.phone}</p>}
                                    </div>
+                                   {/* Email */}
+                                   <div className='md:col-span-1'>
+                                        <label className='block text-sm font-semibold text-red-800 mb-1 sm:mb-2'>
+                                             Email *
+                                        </label>
+                                        <div className='relative'>
+                                             <input
+                                                  type='tel'
+                                                  name='email'
+                                                  value={formData.email}
+                                                  onChange={handleInputChange}
+                                                  className={`w-full px-3 py-2 sm:px-4 sm:py-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm sm:text-base ${errors.email
+                                                       ? 'border-red-300 bg-red-50'
+                                                       : 'border-red-200 focus:border-red-500'
+                                                       }`}
+                                                  placeholder='Enter phone number'
+                                             />
+                                             <div className='absolute inset-y-0 right-0 pr-3 flex items-center'>
+                                                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                  </svg>
+                                             </div>
+                                        </div>
+                                        {errors.email && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors.email}</p>}
+                                   </div>
 
                                    {/* Password */}
                                    <div className='md:col-span-1'>
@@ -537,7 +578,11 @@ export default function AddStudentProfile() {
                                         </div>
                                    </div>
                               </div>
-
+                              <div>
+                                   {apiErrors?.error2?.map((err, index) => (
+                                        <p key={index} className='text-red-700'>{err}</p>
+                                   ))}
+                              </div>
                               {/* Submit Button */}
                               <div className='mt-4 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4'>
                                    <button
@@ -566,7 +611,7 @@ export default function AddStudentProfile() {
                                    <button
                                         type='submit'
                                         disabled={isSubmitting}
-                                        className={`cursor-pointer flex-1 px-4 py-2 sm:px-8 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-white shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base ${isSubmitting
+                                        className={`cursor-pointer flex-1 px-4 py-2 sm:px-8 text-white sm:py-3 rounded-lg sm:rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base ${isSubmitting
                                              ? 'bg-gradient-to-r from-slate-400 to-slate-500 cursor-not-allowed'
                                              : 'bg-gradient-to-r from-red-800 to-red-900 hover:from-red-700 hover:to-red-800'
                                              }`}

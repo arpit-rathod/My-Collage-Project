@@ -1,5 +1,7 @@
-import mongoose from "mongoose";
+// extra schema for attendace collection
 
-const ClassRoomSchema = new mongoose.connect({}, { strict: false });
+// import mongoose from "mongoose";
 
-export default mongoose.model("attendances", ClassRoomSchema);
+// const ClassRoomSchema = new mongoose.connect({}, { strict: false });
+
+// export default mongoose.model("attendances", ClassRoomSchema);

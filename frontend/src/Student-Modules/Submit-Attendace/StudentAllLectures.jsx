@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { Outlet, useNavigate } from 'react-router-dom';
 import FullPageSpinner from '../../animation-components/spinner';
+
 export default function SubmitAttendance() {
      const navigate = useNavigate();
      const [showModal, setShowModal] = useState(false);
@@ -552,6 +553,7 @@ function ModalForSubmitAttendance({ lecture, onClose, onSuccess }) {
      );
 }
 
+export { LectureCard, ModalForSubmitAttendance };
 // // module for submitting attendance student side
 // import axios from 'axios';
 // import React, { useState, useContext, useEffect } from 'react'

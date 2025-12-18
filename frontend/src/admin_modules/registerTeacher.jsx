@@ -14,6 +14,7 @@ export default function TeacherRegistration() {
 
      const [isSubmitting, setIsSubmitting] = useState(false);
      const [errors, setErrors] = useState({});
+     const [resMsg, setResMsg] = useState({});
      const [showPassword, setShowPassword] = useState(false);
      const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -108,23 +109,23 @@ export default function TeacherRegistration() {
           try {
                // Prepare data as per server requirements
                const payload = {
-                    name: formData.name.trim(),
-                    username: formData.username.toLowerCase().trim(),
-                    email: formData.email ? formData.email.toLowerCase().trim() : undefined,
-                    password: formData.password,
-                    phone: parseInt(formData.phone.replace(/\D/g, '')),
-                    photo: formData.photo?.trim() || undefined,
-                    qualification: formData.qualification?.trim() || undefined
+                    name: formData?.name.trim(),
+                    username: formData?.username.toLowerCase().trim(),
+                    email: formData?.email ? formData.email.toLowerCase().trim() : undefined,
+                    password: formData?.password,
+                    phone: parseInt(formData?.phone.replace(/\D/g, '')),
+                    photo: formData?.photo?.trim() || undefined,
+                    qualification: formData?.qualification?.trim() || undefined
                };
 
                // API call to register teacher
                const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/teacher/register`, payload, { withCredentials: true });
                console.log(response);
-
-               const data = await response.json();
-
-               if (response.ok) {
-                    alert('Teacher registered successfully!');
+               if (response.status == 200) {
+                    setResMsg(prev => ({
+                         ...prev,
+                         error1: response.data.message
+                    }))
                     // Reset form
                     setFormData({
                          name: '',
@@ -138,13 +139,31 @@ export default function TeacherRegistration() {
                     });
                     setErrors({});
                } else {
-                    alert(data.message || 'Registration failed');
+                    console.log("Register teacher error : ", response);
+
+                    setResMsg(prev => ({
+                         ...prev,
+                         error1: response.data.message
+                    }))
+                    alert(response.data.message || 'Registration failed');
                }
           } catch (error) {
-               console.error('Registration error:', error);
-               alert('Registration failed. Please try again.');
+               console.log(error.response.data);
+               setResMsg(prev => ({
+                    ...prev,
+                    error1: error.response.data?.message,
+                    error2: error.response.data?.errors
+               }))
+               alert(error.response.data?.message);
           } finally {
                setIsSubmitting(false);
+               setTimeout(() => {
+                    setResMsg(prev => ({
+                         ...prev,
+                         error1: "",
+                         error2: ""
+                    }))
+               }, 10000)
           }
      };
 
@@ -211,7 +230,7 @@ export default function TeacherRegistration() {
                                              <input
                                                   type='text'
                                                   name='name'
-                                                  value={formData.name}
+                                                  value={formData?.name}
                                                   onChange={handleInputChange}
                                                   className={`w-full px-3 py-2 sm:px-4 sm:py-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm sm:text-base ${errors.name
                                                        ? 'border-red-300 bg-red-50'
@@ -225,7 +244,7 @@ export default function TeacherRegistration() {
                                                   </svg>
                                              </div>
                                         </div>
-                                        {errors.name && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors.name}</p>}
+                                        {errors?.name && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors?.name}</p>}
                                    </div>
 
                                    {/* Username */}
@@ -237,7 +256,7 @@ export default function TeacherRegistration() {
                                              <input
                                                   type='text'
                                                   name='username'
-                                                  value={formData.username}
+                                                  value={formData?.username}
                                                   onChange={handleInputChange}
                                                   className={`w-full px-3 py-2 sm:px-4 sm:py-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm sm:text-base ${errors.username
                                                        ? 'border-red-300 bg-red-50'
@@ -251,7 +270,7 @@ export default function TeacherRegistration() {
                                                   </svg>
                                              </div>
                                         </div>
-                                        {errors.username && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors.username}</p>}
+                                        {errors?.username && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors?.username}</p>}
                                    </div>
 
                                    {/* Email (Optional) */}
@@ -263,7 +282,7 @@ export default function TeacherRegistration() {
                                              <input
                                                   type='email'
                                                   name='email'
-                                                  value={formData.email}
+                                                  value={formData?.email}
                                                   onChange={handleInputChange}
                                                   className={`w-full px-3 py-2 sm:px-4 sm:py-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm sm:text-base ${errors.email
                                                        ? 'border-red-300 bg-red-50'
@@ -277,7 +296,7 @@ export default function TeacherRegistration() {
                                                   </svg>
                                              </div>
                                         </div>
-                                        {errors.email && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors.email}</p>}
+                                        {errors.email && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors?.email}</p>}
                                    </div>
 
                                    {/* Phone Number */}
@@ -289,7 +308,7 @@ export default function TeacherRegistration() {
                                              <input
                                                   type='tel'
                                                   name='phone'
-                                                  value={formData.phone}
+                                                  value={formData?.phone}
                                                   onChange={handleInputChange}
                                                   className={`w-full px-3 py-2 sm:px-4 sm:py-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm sm:text-base ${errors.phone
                                                        ? 'border-red-300 bg-red-50'
@@ -303,7 +322,7 @@ export default function TeacherRegistration() {
                                                   </svg>
                                              </div>
                                         </div>
-                                        {errors.phone && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors.phone}</p>}
+                                        {errors?.phone && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors?.phone}</p>}
                                    </div>
 
                                    {/* Password */}
@@ -315,7 +334,7 @@ export default function TeacherRegistration() {
                                              <input
                                                   type={showPassword ? 'text' : 'password'}
                                                   name='password'
-                                                  value={formData.password}
+                                                  value={formData?.password}
                                                   onChange={handleInputChange}
                                                   className={`w-full px-3 py-2 sm:px-4 sm:py-3 pr-10 sm:pr-12 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 text-sm sm:text-base ${errors.password
                                                        ? 'border-red-300 bg-red-50'
@@ -432,7 +451,24 @@ export default function TeacherRegistration() {
                                         {errors.qualification && <p className='text-red-600 text-xs sm:text-sm mt-1'>{errors.qualification}</p>}
                                    </div>
                               </div>
+                              <div>
+                                   <p className='p-2 text-sm text-red-700'>{resMsg?.error1}</p>
+                                   <div>
+                                        <p className='p-2 text-sm text-red-700'>{resMsg?.error1}</p>
 
+                                        {resMsg?.error2 && (
+                                             <div className='p-2 text-sm text-red-700'>
+                                                  {typeof resMsg.error2 === 'string'
+                                                       ? resMsg.error2
+                                                       : Object.entries(resMsg.error2).map(([key, value]) => (
+                                                            <p key={key}>{key}: {value}</p>
+                                                       ))
+                                                  }
+                                             </div>
+                                        )}
+                                   </div>
+                                   {/* <p className='p-2 text-sm text-red-700'>{resMsg?.error2 && resMsg?.error2}</p> */}
+                              </div>
                               {/* Submit Button */}
                               <div className='mt-4 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4'>
                                    <button
@@ -458,9 +494,9 @@ export default function TeacherRegistration() {
                                    <button
                                         type='submit'
                                         disabled={isSubmitting}
-                                        className={`flex-1 px-4 py-2 sm:px-8 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-white shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center`}
+                                        className={`flex-1 px-4 py-2 sm:px-8 sm:py-3 rounded-lg sm:rounded-xl font-semibold bg-red-800 text-white font-medium shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-xl flex items-center justify-center`}
                                    >
-                                        Submit
+                                        Create a New Teacher
                                    </button>
                               </div>
                          </form>

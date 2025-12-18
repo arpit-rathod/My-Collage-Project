@@ -81,7 +81,7 @@ export const registerTeacher = async (req, res) => {
                return res.status(400).json({
                     success: false,
                     message: 'Validation failed',
-                    errors: errors.array().map(error => ({
+                    error: errors.array().map(error => ({
                          field: error.path,
                          message: error.msg
                     }))
@@ -121,11 +121,12 @@ export const registerTeacher = async (req, res) => {
           if (existingUsername) duplicateErrors.push('Username already exists');
           if (existingEmail && email) duplicateErrors.push('Email already registered');
           if (existingPhone) duplicateErrors.push('Phone number already registered');
+          console.log(duplicateErrors);
 
           if (duplicateErrors.length > 0) {
                return res.status(409).json({
                     success: false,
-                    message: 'Registration failed',
+                    message: 'Registration failed due to duplicate key',
                     errors: duplicateErrors
                });
           }

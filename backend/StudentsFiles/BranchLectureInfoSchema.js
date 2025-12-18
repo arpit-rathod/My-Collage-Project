@@ -1,10 +1,18 @@
 import mongoose from "mongoose";
-
-
 const BranchLectureInfoSchema = mongoose.Schema({
-     department: { type: String, required: true },
+     campusID: {type: mongoose.Schema.Types.ObjectId,
+         ref: "campus",
+         index: true},
+     departmentID: {type: mongoose.Schema.Types.ObjectId,
+         ref: "departments",
+         required: true,
+         index: true},
+    branchID: {
+          type: mongoose.Schema.Types.ObjectId,
+              ref: "branches",
+              required: true,
+              index: true},
      year: { type: String, required: true },
-     branch: { type: String, required: true },
      subjectsData: [],
      totalStudents: { type: Number, required: true },
      previousAttendanceCount: { type: Number, default: 0, required: true },

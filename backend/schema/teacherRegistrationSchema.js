@@ -1,4 +1,6 @@
-﻿// import mongoose from "mongoose";
+﻿// new schema is present for all user as main directory as name userSchema.js
+
+// import mongoose from "mongoose";
 
 // const UserSchema = mongoose.Schema({
 //      name: { type: String, required: true },

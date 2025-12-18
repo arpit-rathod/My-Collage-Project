@@ -111,14 +111,9 @@ export default function StudentSearch(props) {
                // fatherName: 'Robert Doe',
                // email: 'john.doe@university.edu',
                // year: '3rd Year'
-          } catch (err) {
-               console.error('Search error:', err);
-               setError(err.response.data.message);
-               // if(err.response.status ==400){
-               //      setError(err.response.data.message);
-               // }else if (err.response.status ==404){
-               // }
-               // setError('Failed to search students. Please try again.');
+          } catch (error) {
+               console.error('Search error:', error);
+               setError(error.data.message || error.data.error || "status code 505 , internal server error.");
           } finally {
                setIsLoading(false);
           }
