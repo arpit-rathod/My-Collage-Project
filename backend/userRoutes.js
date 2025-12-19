@@ -122,7 +122,7 @@ const UserLogin = async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: "/",
         // domain: process.env.NODE_ENV === "production" ? ".onrender.com" : "10.195.223.69:5173"  // Only for production subdomains
-        domain: process.env.NODE_ENV === "production" ? ".onrender.com" : "localhost"  // Only for production subdomains
+        // domain: process.env.NODE_ENV === "production" ? ".onrender.com" : "localhost"  // Only for production subdomains
         // domain: "http://10.195.223.69:5173"
       });
       //Cookie MUST be stored on: localhost domain(where backend runs)

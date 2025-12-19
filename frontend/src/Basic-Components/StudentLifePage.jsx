@@ -125,7 +125,7 @@ const StudentLifePage = () => {
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-indigo-300 to-purple-400 text-white py-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-6 text-red-800">Student Li fe</h1>
+          <h1 className="text-5xl font-bold mb-6 text-red-800">Student Life</h1>
           <p className="text-xl text-red-800 max-w-3xl mx-auto">
             Experience the vibrant campus life filled with memorable moments, exciting events, and lifelong friendships
           </p>
