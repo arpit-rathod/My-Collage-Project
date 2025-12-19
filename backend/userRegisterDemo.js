@@ -161,8 +161,8 @@ const checkExistingUser = async (email, username, phone) => {
   return existingUser;
 };
 const registrationLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 registration attempts per windowMs
+  windowMs: 1 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 5 registration attempts per windowMs
   message: {
     error: 'Too many registration attempts, please try again later.',
     retryAfter: '15 minutes'

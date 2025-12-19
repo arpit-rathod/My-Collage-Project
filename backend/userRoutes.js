@@ -117,7 +117,7 @@ const UserLogin = async (req, res) => {
       res.cookie("auth_token", auth_token, {
         httpOnly: process.env.NODE_ENV === "production", // Cannot access with JS
         secure: process.env.NODE_ENV === "production", // Set true for HTTPS
-        sameSite: "lax", // if same origin user lax other wise use none
+        sameSite: "none", // if same origin user lax other wise use none
         // sameSite: process.env.NODE_ENV === "production" ? "None" : "lax", // if same origin user lax other wise use none
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: "/",
