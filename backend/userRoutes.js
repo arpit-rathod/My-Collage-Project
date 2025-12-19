@@ -9,6 +9,7 @@ import cron from "node-cron";
 import BranchLectureInfoSchema, { subjectsDataValidator } from "./StudentsFiles/BranchLectureInfoSchema.js"; // path to your model
 import StudentGroupSchema from "./schema/studentgroupsSchema.js";
 
+
 const ObjectId = mongoose.Types.ObjectId;
 
 const errorHandlerAndReturnError = async (res, err) => {
@@ -43,8 +44,48 @@ const getProfileAllDetails = async (req, res) => {
           deparmentID: 1,
           branchID: 1,
           year: 1,
+          role: 1,
+          session: 1,
+          admissionYear: 1
         }
-      }
+      },
+      {
+        // Populate departmentID
+        $lookup: {
+          from: 'departments',  // Collection name (lowercase plural)
+          localField: 'departmentID',
+          foreignField: '_id',
+          as: 'departmentDoc',
+          pipeline: [{ $project: { departmentName: 1, code: 1 } }]  // Select only needed fields
+        }
+      },
+      {
+        // Populate branchID
+        $lookup: {
+          from: 'branches',
+          localField: 'branchID',
+          foreignField: '_id',
+          as: 'branchDoc',
+          pipeline: [{ $project: { branchName: 1, code: 1 } }]
+        }
+      },
+      {
+        // Populate campusID (if exists in schema)
+        $lookup: {
+          from: 'campus',
+          localField: 'campusID',  // Add if your schema has it
+          foreignField: '_id',
+          as: 'campusDoc',
+          pipeline: [{ $project: { campusName: 1, code: 1 } }]
+        }
+      },
+      {
+        $addFields: {
+          department: { $arrayElemAt: ['$departmentDoc.departmentName', 0] },  // Single object
+          branch: { $arrayElemAt: ['$branchDoc.branchName', 0] },
+          campus: { $arrayElemAt: ['$campusDoc.campusName', 0] }
+        }
+      },
     ]);
     if (userProfile) {
       //user,

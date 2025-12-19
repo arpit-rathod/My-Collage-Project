@@ -69,7 +69,7 @@ const StudentSchema = new mongoose.Schema({
   branchID: { type: mongoose.Schema.Types.ObjectId, ref: 'branches', required: true },
   // RECOMMENDED naming
   batch: { type: String, index: true },        // "2022-2026"
-  admissionYear: { type: Number, index: true },// 2022
+  admissionYear: { type: Number, required: true, index: true },// 2022
   currentSemester: { type: Number, default: 1 },            // 6
   year: { type: String, default: "first-year" },                       // "third-year"
   session: { type: String, default: getCurrentSession() },                    // "2024-2025"

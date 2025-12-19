@@ -4,25 +4,53 @@ import { CheckCircle, XCircle, Calendar, User, ChevronDown, ChevronUp, BookOpen,
 import { RefreshCw } from 'lucide-react';
 import { storeWeeklyAttendance, getWeekAttendance } from '../../database/services/Dexie.js'
 import { ProfileContext } from '../../All-Provider/profileDataProvider';
+import FullPageSpinner from '../../animation-components/spinner.jsx'
+
+
+// import { ProfileContext } from './All-Provider/profileDataProvider';
+// const { profileData, profileDataLoading } = useContext(Profile
+
+function getCurrentWeekStart() {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sunday, 1=Monday, etc.
+  const diff = day === 0 ? -6 : 1 - day; // Go back to Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff);
+  monday.setHours(0, 0, 0, 0); // Reset to start of day
+
+  const year = monday.getFullYear();
+  const month = String(monday.getMonth() + 1).padStart(2, '0');
+  const date = String(monday.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${date}`;
+}
 
 export function LectureAttendanceCalendar() {
   const { profileData, profileDataLoading } = useContext(ProfileContext);
   // State management (data store करने के लिए)
-  const [selectedWeekStart, setSelectedWeekStart] = useState(new Date().toISOString().split('T')[0]); // current selected week start date 
+  const [selectedWeekStart, setSelectedWeekStart] = useState(getCurrentWeekStart); // current selected week start date 
+  // const [selectedWeekStart, setSelectedWeekStart] = useState(new Date().toISOString().split('T')[0]); // current selected week start date 
   const [attendanceData, setAttendanceData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  console.log(profileData, profileDataLoading);
   // const [expandedWeeks, setExpandedWeeks] = useState({ 0: true });
   // const [currentWeekData, setCurrentWeekData] = useState(null);
   // const [currentWeek, setCurrentWeek] = useState(null); // current week data 
   // const [allWeeks, setAllWeeks] = useState([]);
 
-  console.log(profileData, profileDataLoading);
-
   // Student details - Real example: Login करने के बाद ye details milti हैं
-  const studentUsername = "0114CS231023";
-  const session = "2024-25";
-  const department = "engineering";
+  // const studentUsername = profileData?.name;
+
+  let studentUsername = null;
+
+  useEffect(() => {
+    studentUsername = profileData?.name;
+  }, [profileData]);
+
+
+  // const session = "2024-25";
+  // const department = "engineering";
   const [weekStats, setWeekStats] = useState(null);
   const [weekDates, setWeekDates] = useState([]);
 
@@ -33,7 +61,6 @@ export function LectureAttendanceCalendar() {
     date.setDate(date.getDate() + 6);
     return date.toISOString().split('T')[0];
   };
-
   // API se data fetch karo
   const fetchAttendanceData = async () => {
     try {
@@ -171,15 +198,18 @@ export function LectureAttendanceCalendar() {
     return { totalLectures, totalPresent, totalAbsent, percentage };
   };
   // Loading state
-  if (loading) {
+  if (loading || profileDataLoading) {
+    // return (
+    //   <div className="bg-gradient-to-br from-blue-500 via-indigo-50 to-purple-500 flex items-center justify-center">
+    //     <div className="text-center">
+    //       <RefreshCw className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
+    //       <p className="text-xl text-gray-700 font-semibold">Loading your attendance...</p>
+    //     </div>
+    //   </div>
+    // );
     return (
-      <div className="bg-gradient-to-br from-blue-500 via-indigo-50 to-purple-500 flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-12 h-12 text-indigo-600 animate-spin mx-auto mb-4" />
-          <p className="text-xl text-gray-700 font-semibold">Loading your attendance...</p>
-        </div>
-      </div>
-    );
+      <FullPageSpinner></FullPageSpinner>
+    )
   }
 
   // Error state
@@ -397,11 +427,36 @@ const getDaysInMonth = (month, year) => {
   return new Date(year, month + 1, 0).getDate();
 };
 const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function getYearsArray(admissionYear) {
+  const years = null;
+  const currentYear = new Date().getFullYear();
+  const startYear = parseInt(admissionYear);
+
+  for (let year = startYear; year <= currentYear; year++) {
+    years.push(year.toString());
+  }
+  console.log(years);
+  return years;
+}
+
+
 export default function AttendanceCalendar() {
+
   const ref = useRef(null);
   const [attendanceData, setAttendanceData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const studentUsername = "0114CS231023"
+  const { profileData, profileDataLoading } = useContext(ProfileContext);
+
+  let studentUsername = null;
+  let years = null;
+
+
+  useEffect(() => {
+    years = ["2023", "2024", "2025", "2026", "2027", "2028"];
+    studentUsername = profileData?.name;
+  }, [profileData]);
+
   useEffect(() => {
     async function fetchLectures() {
       console.log("Fetching lectures... for student");
@@ -439,8 +494,6 @@ export default function AttendanceCalendar() {
       attendanceMap[record.date] = record.status;
     });
   }
-  const startCalendarDate = "2023-01-01";
-  const years = ["2023", "2024", "2025", "2026", "2027", "2028"];
 
 
   // Government holidays list (भारत के main holidays)
@@ -467,6 +520,11 @@ export default function AttendanceCalendar() {
   const isWeekend = (date) => {
     const day = new Date(date).getDay();
     return day === 0;
+  }
+  if (profileDataLoading) {
+    return (
+      <FullPageSpinner></FullPageSpinner>
+    )
   }
   return (
     <div className="">
