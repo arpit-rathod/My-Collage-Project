@@ -449,11 +449,11 @@ export default function AttendanceCalendar() {
   const { profileData, profileDataLoading } = useContext(ProfileContext);
 
   let studentUsername = null;
-  let years = null;
+  let years = ["2023", "2024", "2025", "2026", "2027", "2028"];
 
 
   useEffect(() => {
-    years = ["2023", "2024", "2025", "2026", "2027", "2028"];
+    // years = ["2023", "2024", "2025", "2026", "2027", "2028"];
     studentUsername = profileData?.name;
   }, [profileData]);
 
